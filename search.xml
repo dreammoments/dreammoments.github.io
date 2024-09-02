@@ -1,37 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Linux Docker 快速安装教程</title>
-    <url>/2024/08/11/docker-linux%20docker%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<h1 id="docker-依赖安装"><a href="#docker-依赖安装" class="headerlink" title="docker 依赖安装"></a>docker 依赖安装</h1><p>docker 环境依赖于gcc，gcc-c++等环境，故我们需要先将基础依赖构建起来，执行以下命令开始构建：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install gcc</span><br><span class="line">yum -y install gcc-c++</span><br><span class="line">yum install -y yum-utils</span><br></pre></td></tr></table></figure>
-
-<h1 id="yum-配置"><a href="#yum-配置" class="headerlink" title="yum 配置"></a>yum 配置</h1><p>将阿里云提供的 docker ce 仓库添加到 yum 配置中</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
-
-<p>快速更新 yum 的元数据缓存</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum makecache fast</span><br></pre></td></tr></table></figure>
-
-<h1 id="docker-安装"><a href="#docker-安装" class="headerlink" title="docker 安装"></a>docker 安装</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install docker-ce docker-ce-cli containerd.io</span><br></pre></td></tr></table></figure>
-
-<h1 id="阿里云-docker-镜像加速"><a href="#阿里云-docker-镜像加速" class="headerlink" title="阿里云 docker 镜像加速"></a>阿里云 docker 镜像加速</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/docker</span><br><span class="line"><span class="built_in">tee</span> /etc/docker/daemon.json &lt;&lt;-<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://3y0zjn6w.mirror.aliyuncs.com&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h1 id="重启-docker"><a href="#重启-docker" class="headerlink" title="重启 docker"></a>重启 docker</h1><p>重启 docker 让配置生效</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart docker</span><br></pre></td></tr></table></figure>
-
-<h1 id="校验是否安装成功"><a href="#校验是否安装成功" class="headerlink" title="校验是否安装成功"></a>校验是否安装成功</h1><p>查看 docker 版本信息</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# docker -v</span><br><span class="line">Docker version 26.1.4, build 5650f9b</span><br></pre></td></tr></table></figure>
-
-<p>查看 docker 运行状态</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# systemctl status docker</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: disabled)</span><br><span class="line">   Active: active (running) since Sun 2024-08-11 23:31:43 CST; 36s ago</span><br><span class="line">     Docs: https://docs.docker.com</span><br><span class="line"> Main PID: 1783 (dockerd)</span><br><span class="line">    Tasks: 10</span><br><span class="line">   Memory: 133.6M</span><br><span class="line">   CGroup: /system.slice/docker.service</span><br><span class="line">           └─1783 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
-
-<p>查看到 Active 是 active (running)，证明 docker 已经启动，至此 docker 安装完毕~</p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-  </entry>
-  <entry>
     <title>后台系统安全性设计的思考</title>
     <url>/2024/08/17/design-%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/</url>
     <content><![CDATA[<p>本文分享一些后台开发工作中的一些系统安全性的设计与思考，后台开发中，安全性设计是至关重要的，以确保系统的整体安全性和数据的保密性。</p>
@@ -111,6 +80,46 @@
       </categories>
   </entry>
   <entry>
+    <title>git rebase合并多个commit教程</title>
+    <url>/2024/09/03/git-git%20rebase%E5%90%88%E5%B9%B6%E5%A4%9A%E4%B8%AAcommit%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>实际工作中，我们通常要求保持 master 为一条线，这样能够更好的排查问题，有助于提高代码的可读性和可追溯性。这是因为每个提交都是原子性的，只包含一种修改，这样可以使提交记录更加清晰和易于管理；</p>
+<p>项目开发中一个需求通常会涉及很多次的commit，那么我们如何把这个commit变成一个呢，来让我们的merge request 更加简洁明了呢</p>
+<h2 id="Step1：git-commit"><a href="#Step1：git-commit" class="headerlink" title="Step1：git commit"></a>Step1：git commit</h2><p>我们首先要把我们当次的提交，commit 到本地的分支上，但是先不要 push 到 remote，因为我们需要做一下操作，让我们本次的 commit 合到前面的 commit 中去；</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git commit -m <span class="string">&quot;your commit&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step2：git-rebase"><a href="#Step2：git-rebase" class="headerlink" title="Step2：git rebase"></a>Step2：git rebase</h2><p>这个时候，我们要用 git log 看看我们要合并多少个 commit，比如说我这里是合并我的最近3次 commit，那么我就要这样执行来操作：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git rebase -i HEAD~3</span><br><span class="line"></span><br><span class="line"><span class="comment"># HEAD~n：表示进入最近 n 次的 commit</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step3：fixup-option"><a href="#Step3：fixup-option" class="headerlink" title="Step3：fixup option"></a>Step3：fixup option</h2><p>接下来我们就会看到最近的3次 commit，时间线上来说，第一行的 commit 是最早期的，最后一行是最近的一次commit；</p>
+<p>我们可以看到，现在三行的前面都是 <code>pick</code> ；</p>
+<p>这里我们介绍以下 git 的这几种模式：</p>
+<ul>
+<li>pick：保留该 commit</li>
+<li>reword：保留该 commit，但我需要修改该 commit 的 Message</li>
+<li>edit：保留该 commit, 但我要停下来修改该提交(包括修改文件)</li>
+<li>squash：将该 commit 和前一个 commit 合并</li>
+<li>fixup：将该 commit 和前一个 commit 合并，但我不要保留该提交的注释信息</li>
+<li>exec：执行 shell 命令</li>
+<li>drop：丢弃这个 commit</li>
+</ul>
+<p>从而，假设我们现在合并最近3次的 commit，换句话说就是把最近两次 commit 合并到第一次 commit 中；</p>
+<p>具体操作：</p>
+<ul>
+<li><p>按 i 进入 insert 模式，将后面两行的 <code>pick</code> 修改成 <code>fixup</code></p>
+</li>
+<li><p>按 ESC，输入 <code>:wq</code> 后回车保存</p>
+</li>
+</ul>
+<h2 id="Step4：git-push"><a href="#Step4：git-push" class="headerlink" title="Step4：git push"></a>Step4：git push</h2><p>修改完了之后呢，我们就可以直接推送到 remote，但是要使用强制推送，即执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">git push origin your_branch_name -f</span><br><span class="line"></span><br><span class="line"><span class="comment"># -f 表示强推到 remote 仓库</span></span><br></pre></td></tr></table></figure>
+
+<p>至此，我们就把多个 commit 合并成了一个 commit 并成功推送到远程仓库！</p>
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Linux Go 语言开发环境搭建教程</title>
     <url>/2024/08/11/golang-go%E8%AF%AD%E8%A8%80%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/</url>
     <content><![CDATA[<h1 id="手动安装及配置方法"><a href="#手动安装及配置方法" class="headerlink" title="手动安装及配置方法"></a>手动安装及配置方法</h1><h2 id="官方SDK下载"><a href="#官方SDK下载" class="headerlink" title="官方SDK下载"></a>官方SDK下载</h2><p>官网地址：<a class="link"   href="https://golang.org/dl" >https://golang.org/dl<i class="fas fa-external-link-alt"></i></a></p>
@@ -166,42 +175,65 @@
       </categories>
   </entry>
   <entry>
-    <title>Linux Protobuffer 详细安装教程</title>
-    <url>/2024/08/18/protobuf-protobuf%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<p>最新版本的 Protobuffer 的安装已经不需要跟之前一样繁琐的自己进行编译了，直接解压移动到指定目录就可以了，非常省事，主要从以下五个方面讲解 protobuffer 的安装；</p>
-<h1 id="下载-Protobuffer-依赖库"><a href="#下载-Protobuffer-依赖库" class="headerlink" title="下载 Protobuffer 依赖库"></a>下载 Protobuffer 依赖库</h1><p>Protobuffer 依赖于 c++ 环境和其相关的一系列库，我们需要做前置安装；</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install autoconf automake libtool curl make gcc-c++ unzip</span><br></pre></td></tr></table></figure>
+    <title>解决 Cannot find a valid baseurl for base/7/x86_64 的问题</title>
+    <url>/2024/08/11/linux-%E8%A7%A3%E5%86%B3yum-baseurl%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h1 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h1><p>Centos7.9 执行 yum install 或者 yum update 后报错如下，通过报错信息可以知道是国外镜像无法访问的问题</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line">Could not retrieve mirrorlist http://mirrorlist.centos.org/?release=7&amp;<span class="built_in">arch</span>=x86_64&amp;repo=os&amp;infra=stock error was</span><br><span class="line">14: curl#6 - <span class="string">&quot;Could not resolve host: mirrorlist.centos.org; Unknown error&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> One of the configured repositories failed (Unknown),</span><br><span class="line"> and yum doesn<span class="string">&#x27;t have enough cached data to continue. At this point the only</span></span><br><span class="line"><span class="string"> safe thing yum can do is fail. There are a few ways to work &quot;fix&quot; this:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     1. Contact the upstream for the repository and get them to fix the problem.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     2. Reconfigure the baseurl/etc. for the repository, to point to a working</span></span><br><span class="line"><span class="string">        upstream. This is most often useful if you are using a newer</span></span><br><span class="line"><span class="string">        distribution release than is supported by the repository (and the</span></span><br><span class="line"><span class="string">        packages for the previous distribution release still work).</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     3. Run the command with the repository temporarily disabled</span></span><br><span class="line"><span class="string">            yum --disablerepo=&lt;repoid&gt; ...</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     4. Disable the repository permanently, so yum won&#x27;</span>t use it by default. Yum</span><br><span class="line">        will <span class="keyword">then</span> just ignore the repository <span class="keyword">until</span> you permanently <span class="built_in">enable</span> it</span><br><span class="line">        again or use --enablerepo <span class="keyword">for</span> temporary usage:</span><br><span class="line"></span><br><span class="line">            yum-config-manager --<span class="built_in">disable</span> &lt;repoid&gt;</span><br><span class="line">        or</span><br><span class="line">            subscription-manager repos --<span class="built_in">disable</span>=&lt;repoid&gt;</span><br><span class="line"></span><br><span class="line">     5. Configure the failing repository to be skipped, <span class="keyword">if</span> it is unavailable.</span><br><span class="line">        Note that yum will try to contact the repo. when it runs most commands,</span><br><span class="line">        so will have to try and fail each time (and thus. yum will be be much</span><br><span class="line">        slower). If it is a very temporary problem though, this is often a <span class="built_in">nice</span></span><br><span class="line">        compromise:</span><br><span class="line"></span><br><span class="line">            yum-config-manager --save --<span class="built_in">setopt</span>=&lt;repoid&gt;.skip_if_unavailable=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line">Cannot find a valid baseurl <span class="keyword">for</span> repo: base/7/x86_64</span><br></pre></td></tr></table></figure>
 
-<h1 id="安装-Protobuffer"><a href="#安装-Protobuffer" class="headerlink" title="安装 Protobuffer"></a>安装 Protobuffer</h1><p><a class="link"   href="https://github.com/protocolbuffers/protobuf/releases/" >protobuffer github 仓库地址<i class="fas fa-external-link-alt"></i></a></p>
-<p>wget 从 github 拉取目前的最新版本 Protocol Buffers v27.3</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/protocolbuffers/protobuf/releases/download/v27.3/protoc-27.3-linux-x86_64.zip</span><br></pre></td></tr></table></figure>
 
-<h1 id="解压-Protobuffer"><a href="#解压-Protobuffer" class="headerlink" title="解压 Protobuffer"></a>解压 Protobuffer</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">unzip protoc-27.3-linux-x86_64.zip -d protoc-27.3</span><br></pre></td></tr></table></figure>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>通过把国外镜像替换成国内阿里云镜像来解决这个问题;</p>
+<h2 id="清除-yum-缓存"><a href="#清除-yum-缓存" class="headerlink" title="清除 yum 缓存"></a>清除 yum 缓存</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum clean all</span><br></pre></td></tr></table></figure>
 
-<h1 id="移动到指定目录下"><a href="#移动到指定目录下" class="headerlink" title="移动到指定目录下"></a>移动到指定目录下</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mv</span> protoc-27.3/bin/protoc /usr/local/bin/</span><br></pre></td></tr></table></figure>
 
-<p>将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录的主要原因包括：</p>
-<ul>
-<li><p>系统路径</p>
-<p>  可执行文件路径： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 是一个标准的系统路径，用于存放用户安装的可执行文件。将 protoc 移动到这个目录，确保它可以被系统上的所有用户和进程方便地调用，而无需指定完整路径。</p>
-</li>
-<li><p>环境变量</p>
-<p>  简化使用： 将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 后，可以直接在终端中输入 protoc 而不必提供其完整路径。这简化了命令的使用，提升了开发效率。</p>
-</li>
-<li><p>系统标准</p>
-<p>  与系统工具一致： 将用户安装的工具放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 避免与系统自带的工具发生冲突。系统工具通常位于 &#x2F;bin&#x2F; 或 &#x2F;usr&#x2F;bin&#x2F;，而用户安装的工具则放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 以保持清晰的分隔。</p>
-</li>
-<li><p>权限和管理</p>
-<p>  适当的权限： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录通常具有合适的权限设置，允许用户安装和管理自己的工具，而不影响系统级工具的安全性和稳定性。</p>
-</li>
-</ul>
-<h1 id="校验安装是否完成"><a href="#校验安装是否完成" class="headerlink" title="校验安装是否完成"></a>校验安装是否完成</h1><p>执行以下命令，可以检查是否完成安装</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# protoc --version</span><br><span class="line">libprotoc 27.3</span><br></pre></td></tr></table></figure>
+<h2 id="修改-yum-配置文件"><a href="#修改-yum-配置文件" class="headerlink" title="修改 yum 配置文件"></a>修改 yum 配置文件</h2><p>打开配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vi /etc/yum.repos.d/CentOS-Base.repo</span><br></pre></td></tr></table></figure>
 
-<p>提示以上信息则证明安装完成！</p>
+<p>把配置内容覆盖，全量替换成以下的阿里云镜像配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[base]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Base - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/os/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[updates]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Updates - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/updates/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[extras]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Extras - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/extras/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[centosplus]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Plus - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/centosplus/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">enabled=0</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br></pre></td></tr></table></figure>
+
+<h2 id="生成-yum-缓存"><a href="#生成-yum-缓存" class="headerlink" title="生成 yum 缓存"></a>生成 yum 缓存</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum makecache</span><br></pre></td></tr></table></figure>
+
+<h2 id="更新-yum-工具"><a href="#更新-yum-工具" class="headerlink" title="更新 yum 工具"></a>更新 yum 工具</h2><p>更新过程会提示确认操作，按y后回车确认即可</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum update</span><br></pre></td></tr></table></figure>
+
+<p>控制台打印 Complete 代表问题解决成功，以下是博主解决完成后控制台的打印示例</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Complete!</span><br><span class="line">[root@localhost ~]# </span><br></pre></td></tr></table></figure>
+
+<p>至此，问题圆满解决！</p>
 ]]></content>
       <categories>
-        <category>Protobuffer</category>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux Docker 快速安装教程</title>
+    <url>/2024/08/11/docker-linux%20docker%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="docker-依赖安装"><a href="#docker-依赖安装" class="headerlink" title="docker 依赖安装"></a>docker 依赖安装</h1><p>docker 环境依赖于gcc，gcc-c++等环境，故我们需要先将基础依赖构建起来，执行以下命令开始构建：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install gcc</span><br><span class="line">yum -y install gcc-c++</span><br><span class="line">yum install -y yum-utils</span><br></pre></td></tr></table></figure>
+
+<h1 id="yum-配置"><a href="#yum-配置" class="headerlink" title="yum 配置"></a>yum 配置</h1><p>将阿里云提供的 docker ce 仓库添加到 yum 配置中</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
+
+<p>快速更新 yum 的元数据缓存</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum makecache fast</span><br></pre></td></tr></table></figure>
+
+<h1 id="docker-安装"><a href="#docker-安装" class="headerlink" title="docker 安装"></a>docker 安装</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install docker-ce docker-ce-cli containerd.io</span><br></pre></td></tr></table></figure>
+
+<h1 id="阿里云-docker-镜像加速"><a href="#阿里云-docker-镜像加速" class="headerlink" title="阿里云 docker 镜像加速"></a>阿里云 docker 镜像加速</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/docker</span><br><span class="line"><span class="built_in">tee</span> /etc/docker/daemon.json &lt;&lt;-<span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://3y0zjn6w.mirror.aliyuncs.com&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h1 id="重启-docker"><a href="#重启-docker" class="headerlink" title="重启 docker"></a>重启 docker</h1><p>重启 docker 让配置生效</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<h1 id="校验是否安装成功"><a href="#校验是否安装成功" class="headerlink" title="校验是否安装成功"></a>校验是否安装成功</h1><p>查看 docker 版本信息</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# docker -v</span><br><span class="line">Docker version 26.1.4, build 5650f9b</span><br></pre></td></tr></table></figure>
+
+<p>查看 docker 运行状态</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# systemctl status docker</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: disabled)</span><br><span class="line">   Active: active (running) since Sun 2024-08-11 23:31:43 CST; 36s ago</span><br><span class="line">     Docs: https://docs.docker.com</span><br><span class="line"> Main PID: 1783 (dockerd)</span><br><span class="line">    Tasks: 10</span><br><span class="line">   Memory: 133.6M</span><br><span class="line">   CGroup: /system.slice/docker.service</span><br><span class="line">           └─1783 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
+
+<p>查看到 Active 是 active (running)，证明 docker 已经启动，至此 docker 安装完毕~</p>
+]]></content>
+      <categories>
+        <category>Docker</category>
       </categories>
   </entry>
   <entry>
@@ -242,34 +274,42 @@
       </categories>
   </entry>
   <entry>
-    <title>解决 Cannot find a valid baseurl for base/7/x86_64 的问题</title>
-    <url>/2024/08/11/linux-%E8%A7%A3%E5%86%B3yum-baseurl%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h1 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h1><p>Centos7.9 执行 yum install 或者 yum update 后报错如下，通过报错信息可以知道是国外镜像无法访问的问题</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line">Could not retrieve mirrorlist http://mirrorlist.centos.org/?release=7&amp;<span class="built_in">arch</span>=x86_64&amp;repo=os&amp;infra=stock error was</span><br><span class="line">14: curl#6 - <span class="string">&quot;Could not resolve host: mirrorlist.centos.org; Unknown error&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> One of the configured repositories failed (Unknown),</span><br><span class="line"> and yum doesn<span class="string">&#x27;t have enough cached data to continue. At this point the only</span></span><br><span class="line"><span class="string"> safe thing yum can do is fail. There are a few ways to work &quot;fix&quot; this:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     1. Contact the upstream for the repository and get them to fix the problem.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     2. Reconfigure the baseurl/etc. for the repository, to point to a working</span></span><br><span class="line"><span class="string">        upstream. This is most often useful if you are using a newer</span></span><br><span class="line"><span class="string">        distribution release than is supported by the repository (and the</span></span><br><span class="line"><span class="string">        packages for the previous distribution release still work).</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     3. Run the command with the repository temporarily disabled</span></span><br><span class="line"><span class="string">            yum --disablerepo=&lt;repoid&gt; ...</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     4. Disable the repository permanently, so yum won&#x27;</span>t use it by default. Yum</span><br><span class="line">        will <span class="keyword">then</span> just ignore the repository <span class="keyword">until</span> you permanently <span class="built_in">enable</span> it</span><br><span class="line">        again or use --enablerepo <span class="keyword">for</span> temporary usage:</span><br><span class="line"></span><br><span class="line">            yum-config-manager --<span class="built_in">disable</span> &lt;repoid&gt;</span><br><span class="line">        or</span><br><span class="line">            subscription-manager repos --<span class="built_in">disable</span>=&lt;repoid&gt;</span><br><span class="line"></span><br><span class="line">     5. Configure the failing repository to be skipped, <span class="keyword">if</span> it is unavailable.</span><br><span class="line">        Note that yum will try to contact the repo. when it runs most commands,</span><br><span class="line">        so will have to try and fail each time (and thus. yum will be be much</span><br><span class="line">        slower). If it is a very temporary problem though, this is often a <span class="built_in">nice</span></span><br><span class="line">        compromise:</span><br><span class="line"></span><br><span class="line">            yum-config-manager --save --<span class="built_in">setopt</span>=&lt;repoid&gt;.skip_if_unavailable=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line">Cannot find a valid baseurl <span class="keyword">for</span> repo: base/7/x86_64</span><br></pre></td></tr></table></figure>
+    <title>Linux Protobuffer 详细安装教程</title>
+    <url>/2024/08/18/protobuf-protobuf%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<p>最新版本的 Protobuffer 的安装已经不需要跟之前一样繁琐的自己进行编译了，直接解压移动到指定目录就可以了，非常省事，主要从以下五个方面讲解 protobuffer 的安装；</p>
+<h1 id="下载-Protobuffer-依赖库"><a href="#下载-Protobuffer-依赖库" class="headerlink" title="下载 Protobuffer 依赖库"></a>下载 Protobuffer 依赖库</h1><p>Protobuffer 依赖于 c++ 环境和其相关的一系列库，我们需要做前置安装；</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install autoconf automake libtool curl make gcc-c++ unzip</span><br></pre></td></tr></table></figure>
 
+<h1 id="安装-Protobuffer"><a href="#安装-Protobuffer" class="headerlink" title="安装 Protobuffer"></a>安装 Protobuffer</h1><p><a class="link"   href="https://github.com/protocolbuffers/protobuf/releases/" >protobuffer github 仓库地址<i class="fas fa-external-link-alt"></i></a></p>
+<p>wget 从 github 拉取目前的最新版本 Protocol Buffers v27.3</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/protocolbuffers/protobuf/releases/download/v27.3/protoc-27.3-linux-x86_64.zip</span><br></pre></td></tr></table></figure>
 
-<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>通过把国外镜像替换成国内阿里云镜像来解决这个问题;</p>
-<h2 id="清除-yum-缓存"><a href="#清除-yum-缓存" class="headerlink" title="清除 yum 缓存"></a>清除 yum 缓存</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum clean all</span><br></pre></td></tr></table></figure>
+<h1 id="解压-Protobuffer"><a href="#解压-Protobuffer" class="headerlink" title="解压 Protobuffer"></a>解压 Protobuffer</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">unzip protoc-27.3-linux-x86_64.zip -d protoc-27.3</span><br></pre></td></tr></table></figure>
 
+<h1 id="移动到指定目录下"><a href="#移动到指定目录下" class="headerlink" title="移动到指定目录下"></a>移动到指定目录下</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mv</span> protoc-27.3/bin/protoc /usr/local/bin/</span><br></pre></td></tr></table></figure>
 
-<h2 id="修改-yum-配置文件"><a href="#修改-yum-配置文件" class="headerlink" title="修改 yum 配置文件"></a>修改 yum 配置文件</h2><p>打开配置文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vi /etc/yum.repos.d/CentOS-Base.repo</span><br></pre></td></tr></table></figure>
+<p>将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录的主要原因包括：</p>
+<ul>
+<li><p>系统路径</p>
+<p>  可执行文件路径： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 是一个标准的系统路径，用于存放用户安装的可执行文件。将 protoc 移动到这个目录，确保它可以被系统上的所有用户和进程方便地调用，而无需指定完整路径。</p>
+</li>
+<li><p>环境变量</p>
+<p>  简化使用： 将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 后，可以直接在终端中输入 protoc 而不必提供其完整路径。这简化了命令的使用，提升了开发效率。</p>
+</li>
+<li><p>系统标准</p>
+<p>  与系统工具一致： 将用户安装的工具放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 避免与系统自带的工具发生冲突。系统工具通常位于 &#x2F;bin&#x2F; 或 &#x2F;usr&#x2F;bin&#x2F;，而用户安装的工具则放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 以保持清晰的分隔。</p>
+</li>
+<li><p>权限和管理</p>
+<p>  适当的权限： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录通常具有合适的权限设置，允许用户安装和管理自己的工具，而不影响系统级工具的安全性和稳定性。</p>
+</li>
+</ul>
+<h1 id="校验安装是否完成"><a href="#校验安装是否完成" class="headerlink" title="校验安装是否完成"></a>校验安装是否完成</h1><p>执行以下命令，可以检查是否完成安装</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]# protoc --version</span><br><span class="line">libprotoc 27.3</span><br></pre></td></tr></table></figure>
 
-<p>把配置内容覆盖，全量替换成以下的阿里云镜像配置</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[base]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Base - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/os/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[updates]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Updates - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/updates/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[extras]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Extras - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/extras/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br><span class="line"></span><br><span class="line">[centosplus]</span><br><span class="line">name=CentOS-<span class="variable">$releasever</span> - Plus - mirrors.aliyun.com</span><br><span class="line">baseurl=http://mirrors.aliyun.com/centos/<span class="variable">$releasever</span>/centosplus/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=1</span><br><span class="line">enabled=0</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7</span><br></pre></td></tr></table></figure>
-
-<h2 id="生成-yum-缓存"><a href="#生成-yum-缓存" class="headerlink" title="生成 yum 缓存"></a>生成 yum 缓存</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum makecache</span><br></pre></td></tr></table></figure>
-
-<h2 id="更新-yum-工具"><a href="#更新-yum-工具" class="headerlink" title="更新 yum 工具"></a>更新 yum 工具</h2><p>更新过程会提示确认操作，按y后回车确认即可</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum update</span><br></pre></td></tr></table></figure>
-
-<p>控制台打印 Complete 代表问题解决成功，以下是博主解决完成后控制台的打印示例</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Complete!</span><br><span class="line">[root@localhost ~]# </span><br></pre></td></tr></table></figure>
-
-<p>至此，问题圆满解决！</p>
+<p>提示以上信息则证明安装完成！</p>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>Protobuffer</category>
       </categories>
   </entry>
 </search>

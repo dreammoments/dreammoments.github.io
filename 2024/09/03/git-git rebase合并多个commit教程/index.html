@@ -9,7 +9,7 @@
     
     <title>
         
-            Linux Protobuffer 详细安装教程 |
+            git rebase合并多个commit教程 |
         
         Kevin&#39;s Blog
     </title>
@@ -193,7 +193,7 @@
             <div class="post-content-bottom border-box">
                 
                     <div class="post-title">
-                        Linux Protobuffer 详细安装教程
+                        git rebase合并多个commit教程
                     </div>
                 
 
@@ -221,12 +221,12 @@
         
             <span class="meta-info-item post-create-date">
                 <i class="icon fa-solid fa-calendar-plus"></i>&nbsp;
-                <span class="datetime">2024-08-18 07:35:12</span>
+                <span class="datetime">2024-09-03 01:27:19</span>
             </span>
 
             <span class="meta-info-item post-update-date">
                 <i class="icon fa-solid fa-file-pen"></i>&nbsp;
-                <span class="datetime" data-updated="Sun Aug 18 2024 20:21:13 GMT+0800">2024-08-18 20:21:13</span>
+                <span class="datetime" data-updated="Tue Sep 03 2024 02:15:13 GMT+0800">2024-09-03 02:15:13</span>
             </span>
         
 
@@ -234,7 +234,7 @@
             <span class="meta-info-item post-category border-box"><i class="icon fas fa-folder"></i>&nbsp;
                 <ul class="post-category-ul">
                     
-                            <li class="category-item"><a href="/categories/Protobuffer/">Protobuffer</a></li>
+                            <li class="category-item"><a href="/categories/Git/">Git</a></li>
                         
                     
                 </ul>
@@ -265,37 +265,38 @@
                     
 
                     
-                         <p>最新版本的 Protobuffer 的安装已经不需要跟之前一样繁琐的自己进行编译了，直接解压移动到指定目录就可以了，非常省事，主要从以下五个方面讲解 protobuffer 的安装；</p>
-<h1 id="下载-Protobuffer-依赖库"><a href="#下载-Protobuffer-依赖库" class="headerlink" title="下载 Protobuffer 依赖库"></a>下载 Protobuffer 依赖库</h1><p>Protobuffer 依赖于 c++ 环境和其相关的一系列库，我们需要做前置安装；</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install autoconf automake libtool curl make gcc-c++ unzip</span><br></pre></td></tr></table></figure>
+                         <p>实际工作中，我们通常要求保持 master 为一条线，这样能够更好的排查问题，有助于提高代码的可读性和可追溯性。这是因为每个提交都是原子性的，只包含一种修改，这样可以使提交记录更加清晰和易于管理；</p>
+<p>项目开发中一个需求通常会涉及很多次的commit，那么我们如何把这个commit变成一个呢，来让我们的merge request 更加简洁明了呢</p>
+<h2 id="Step1：git-commit"><a href="#Step1：git-commit" class="headerlink" title="Step1：git commit"></a>Step1：git commit</h2><p>我们首先要把我们当次的提交，commit 到本地的分支上，但是先不要 push 到 remote，因为我们需要做一下操作，让我们本次的 commit 合到前面的 commit 中去；</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">&quot;your commit&quot;</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="安装-Protobuffer"><a href="#安装-Protobuffer" class="headerlink" title="安装 Protobuffer"></a>安装 Protobuffer</h1><p><a class="link"   target="_blank" rel="noopener" href="https://github.com/protocolbuffers/protobuf/releases/" >protobuffer github 仓库地址<i class="fas fa-external-link-alt"></i></a></p>
-<p>wget 从 github 拉取目前的最新版本 Protocol Buffers v27.3</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/protocolbuffers/protobuf/releases/download/v27.3/protoc-27.3-linux-x86_64.zip</span><br></pre></td></tr></table></figure>
+<h2 id="Step2：git-rebase"><a href="#Step2：git-rebase" class="headerlink" title="Step2：git rebase"></a>Step2：git rebase</h2><p>这个时候，我们要用 git log 看看我们要合并多少个 commit，比如说我这里是合并我的最近3次 commit，那么我就要这样执行来操作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git rebase -i HEAD~3</span><br><span class="line"></span><br><span class="line"><span class="comment"># HEAD~n：表示进入最近 n 次的 commit</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="解压-Protobuffer"><a href="#解压-Protobuffer" class="headerlink" title="解压 Protobuffer"></a>解压 Protobuffer</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unzip protoc-27.3-linux-x86_64.zip -d protoc-27.3</span><br></pre></td></tr></table></figure>
-
-<h1 id="移动到指定目录下"><a href="#移动到指定目录下" class="headerlink" title="移动到指定目录下"></a>移动到指定目录下</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> protoc-27.3/bin/protoc /usr/local/bin/</span><br></pre></td></tr></table></figure>
-
-<p>将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录的主要原因包括：</p>
+<h2 id="Step3：fixup-option"><a href="#Step3：fixup-option" class="headerlink" title="Step3：fixup option"></a>Step3：fixup option</h2><p>接下来我们就会看到最近的3次 commit，时间线上来说，第一行的 commit 是最早期的，最后一行是最近的一次commit；</p>
+<p>我们可以看到，现在三行的前面都是 <code>pick</code> ；</p>
+<p>这里我们介绍以下 git 的这几种模式：</p>
 <ul>
-<li><p>系统路径</p>
-<p>  可执行文件路径： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 是一个标准的系统路径，用于存放用户安装的可执行文件。将 protoc 移动到这个目录，确保它可以被系统上的所有用户和进程方便地调用，而无需指定完整路径。</p>
+<li>pick：保留该 commit</li>
+<li>reword：保留该 commit，但我需要修改该 commit 的 Message</li>
+<li>edit：保留该 commit, 但我要停下来修改该提交(包括修改文件)</li>
+<li>squash：将该 commit 和前一个 commit 合并</li>
+<li>fixup：将该 commit 和前一个 commit 合并，但我不要保留该提交的注释信息</li>
+<li>exec：执行 shell 命令</li>
+<li>drop：丢弃这个 commit</li>
+</ul>
+<p>从而，假设我们现在合并最近3次的 commit，换句话说就是把最近两次 commit 合并到第一次 commit 中；</p>
+<p>具体操作：</p>
+<ul>
+<li><p>按 i 进入 insert 模式，将后面两行的 <code>pick</code> 修改成 <code>fixup</code></p>
 </li>
-<li><p>环境变量</p>
-<p>  简化使用： 将 protoc 移动到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 后，可以直接在终端中输入 protoc 而不必提供其完整路径。这简化了命令的使用，提升了开发效率。</p>
-</li>
-<li><p>系统标准</p>
-<p>  与系统工具一致： 将用户安装的工具放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 避免与系统自带的工具发生冲突。系统工具通常位于 &#x2F;bin&#x2F; 或 &#x2F;usr&#x2F;bin&#x2F;，而用户安装的工具则放在 &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 以保持清晰的分隔。</p>
-</li>
-<li><p>权限和管理</p>
-<p>  适当的权限： &#x2F;usr&#x2F;local&#x2F;bin&#x2F; 目录通常具有合适的权限设置，允许用户安装和管理自己的工具，而不影响系统级工具的安全性和稳定性。</p>
+<li><p>按 ESC，输入 <code>:wq</code> 后回车保存</p>
 </li>
 </ul>
-<h1 id="校验安装是否完成"><a href="#校验安装是否完成" class="headerlink" title="校验安装是否完成"></a>校验安装是否完成</h1><p>执行以下命令，可以检查是否完成安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# protoc --version</span><br><span class="line">libprotoc 27.3</span><br></pre></td></tr></table></figure>
+<h2 id="Step4：git-push"><a href="#Step4：git-push" class="headerlink" title="Step4：git push"></a>Step4：git push</h2><p>修改完了之后呢，我们就可以直接推送到 remote，但是要使用强制推送，即执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">git push origin your_branch_name -f</span><br><span class="line"></span><br><span class="line"><span class="comment"># -f 表示强推到 remote 仓库</span></span><br></pre></td></tr></table></figure>
 
-<p>提示以上信息则证明安装完成！</p>
+<p>至此，我们就把多个 commit 合并成了一个 commit 并成功推送到远程仓库！</p>
 
                     
                 </div>
@@ -306,11 +307,11 @@
     <div class="copyright-info-content border-box">
         <div class="copyright-info-top border-box">
             <div class="copyright-post-title border-box text-ellipsis">
-                Linux Protobuffer 详细安装教程
+                git rebase合并多个commit教程
             </div>
 
             <div class="copyright-post-link border-box text-ellipsis">
-                2024/08/18/protobuf-protobuf详细安装教程/
+                2024/09/03/git-git rebase合并多个commit教程/
             </div>
         </div>
 
@@ -326,7 +327,7 @@
                 <div class="type">
                     Published
                 </div>
-                <div class="content">2024-08-18 07:35</div>
+                <div class="content">2024-09-03 01:27</div>
             </div>
 
 
@@ -406,31 +407,15 @@
                 
                     <div class="post-nav border-box">
                         
-                            <div class="prev-post">
-                                <a class="prev"
-                                   rel="prev"
-                                   href="/2024/09/03/git-git%20rebase%E5%90%88%E5%B9%B6%E5%A4%9A%E4%B8%AAcommit%E6%95%99%E7%A8%8B/"
-                                   title="git rebase合并多个commit教程"
-                                >
-                                    <span class="left arrow-icon flex-center">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </span>
-                                    <span class="title flex-center">
-                                        <span class="post-nav-title-item text-ellipsis">git rebase合并多个commit教程</span>
-                                        <span class="post-nav-item">Prev posts</span>
-                                    </span>
-                                </a>
-                            </div>
-                        
                         
                             <div class="next-post">
                                 <a class="next"
                                    rel="next"
-                                   href="/2024/08/17/design-%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/"
-                                   title="后台系统安全性设计的思考"
+                                   href="/2024/08/18/protobuf-protobuf%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/"
+                                   title="Linux Protobuffer 详细安装教程"
                                 >
                                     <span class="title flex-center">
-                                        <span class="post-nav-title-item text-ellipsis">后台系统安全性设计的思考</span>
+                                        <span class="post-nav-title-item text-ellipsis">Linux Protobuffer 详细安装教程</span>
                                         <span class="post-nav-item">Next posts</span>
                                     </span>
                                     <span class="right arrow-icon flex-center">
@@ -458,7 +443,7 @@
             <div class="pc-post-toc right-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD-Protobuffer-%E4%BE%9D%E8%B5%96%E5%BA%93"><span class="nav-number">1.</span> <span class="nav-text">下载 Protobuffer 依赖库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-Protobuffer"><span class="nav-number">2.</span> <span class="nav-text">安装 Protobuffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B-Protobuffer"><span class="nav-number">3.</span> <span class="nav-text">解压 Protobuffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="nav-number">4.</span> <span class="nav-text">移动到指定目录下</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%A1%E9%AA%8C%E5%AE%89%E8%A3%85%E6%98%AF%E5%90%A6%E5%AE%8C%E6%88%90"><span class="nav-number">5.</span> <span class="nav-text">校验安装是否完成</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Step1%EF%BC%9Agit-commit"><span class="nav-number">1.</span> <span class="nav-text">Step1：git commit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step2%EF%BC%9Agit-rebase"><span class="nav-number">2.</span> <span class="nav-text">Step2：git rebase</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step3%EF%BC%9Afixup-option"><span class="nav-number">3.</span> <span class="nav-text">Step3：fixup option</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step4%EF%BC%9Agit-push"><span class="nav-number">4.</span> <span class="nav-text">Step4：git push</span></a></li></ol>
     </div>
 </div>
 
@@ -566,7 +551,7 @@
             <div class="tablet-post-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD-Protobuffer-%E4%BE%9D%E8%B5%96%E5%BA%93"><span class="nav-number">1.</span> <span class="nav-text">下载 Protobuffer 依赖库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-Protobuffer"><span class="nav-number">2.</span> <span class="nav-text">安装 Protobuffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B-Protobuffer"><span class="nav-number">3.</span> <span class="nav-text">解压 Protobuffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="nav-number">4.</span> <span class="nav-text">移动到指定目录下</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%A1%E9%AA%8C%E5%AE%89%E8%A3%85%E6%98%AF%E5%90%A6%E5%AE%8C%E6%88%90"><span class="nav-number">5.</span> <span class="nav-text">校验安装是否完成</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Step1%EF%BC%9Agit-commit"><span class="nav-number">1.</span> <span class="nav-text">Step1：git commit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step2%EF%BC%9Agit-rebase"><span class="nav-number">2.</span> <span class="nav-text">Step2：git rebase</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step3%EF%BC%9Afixup-option"><span class="nav-number">3.</span> <span class="nav-text">Step3：fixup option</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step4%EF%BC%9Agit-push"><span class="nav-number">4.</span> <span class="nav-text">Step4：git push</span></a></li></ol>
     </div>
 </div>
 
