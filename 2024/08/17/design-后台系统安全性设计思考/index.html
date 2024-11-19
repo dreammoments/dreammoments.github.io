@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="tech,coding,blog">
+    <meta name="description" content="This is a blog about technology, coding.">
+    <meta name="author" content="Kevin">
+    
+    <title>
+        
+            后台系统安全性设计的思考 |
+        
+        Kevin&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/favicon.svg">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/font/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/font/css/regular.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/font/css/solid.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/font/css/brands.min.css">
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"dreammoments.github.io","root":"/","language":"en","path":"search.xml"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#87CEEB","title":"Kevin's Blog","author":"Kevin","avatar":"/images/avatar.svg","logo":"/images/logo.svg","favicon":"/images/favicon.svg","mode":"light"},"menu":{"home":"/                                  || fa-solid fa-home","archives":"/archives                      || fa-solid fa-box-archive","categories":"/categories                  || fa-solid fa-layer-group"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"Keep writing and Keep loving.","hitokoto":false},"social_contact":{"enable":true,"links":{"github":"https://github.com/dreammoments","email":"dreammomentary@outlook.com"}},"scroll":{"progress_bar":false,"percent":false,"hide_header":true},"home":{"announcement":null,"category":true,"tag":false,"post_datetime":"updated"},"post":{"author_badge":{"enable":true,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":false,"min2read":false},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":true,"share":true,"reward":{"enable":true,"img_link":"/images/reward.png","text":null,"icon":"fa-solid fa-hand-holding-heart"}},"code_block":{"tools":{"enable":true,"style":"default"},"highlight_theme":"default"},"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":true,"site_uv":false,"site_pv":false,"page_pv":true}},"local_search":{"enable":false,"preload":false},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.36"},"waline":{"server_url":null,"reaction":false,"version":"3.2.1"},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":false},"cdn":{"enable":true,"provider":"cdnjs"},"pjax":{"enable":false},"footer":{"since":2024,"word_count":true,"site_deploy":{"enable":false,"provider":"github","url":null},"record":{"enable":false,"list":[{"code":null,"link":null}]}},"inject":{"enable":false,"css":[null],"js":[null]},"root":"","source_data":{},"version":"4.2.1"}
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"}
+    KEEP.language_code_block = {"copy":"Copy code","copied":"Copied","fold":"Fold code block","folded":"Folded"}
+    KEEP.language_copy_copyright = {"copy":"Copy copyright info","copied":"Copied","title":"Original post title","author":"Original post author","link":"Original post link"}
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+
+<main class="page-container border-box">
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left flex-start border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/logo.svg">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               Kevin&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc border-box">
+                <ul class="menu-list border-box">
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-home"></i>
+                                
+                                HOME
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/archives">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-box-archive"></i>
+                                
+                                ARCHIVES
+                                
+                            </a>
+                            
+                        </li>
+                    
+                        
+                        <li class="menu-item flex-start border-box">
+                            <a class="menu-text-color border-box" href="/categories">
+                                
+                                    <i class="menu-text-color menu-icon fa-solid fa-layer-group"></i>
+                                
+                                CATEGORIES
+                                
+                            </a>
+                            
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile border-box flex-start">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list border-box">
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-home"></i>
+                                </span>
+                            
+                            HOME
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/archives">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-box-archive"></i>
+                                </span>
+                            
+                            ARCHIVES
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+                
+                <li class="drawer-menu-item border-box not-sub-menu">
+                    <label class="drawer-menu-label border-box">
+                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/categories">
+                            
+                                <span class="menu-icon-wrap border-box flex-center">
+                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-layer-group"></i>
+                                </span>
+                            
+                            CATEGORIES
+                        </a>
+                        
+                    </label>
+                    
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="post-content-container border-box">
+            
+
+            <div class="post-content-bottom border-box">
+                
+                    <div class="post-title">
+                        后台系统安全性设计的思考
+                    </div>
+                
+
+                
+                    <div class="post-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/avatar.svg">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author border-box">
+                                <span class="name">Kevin</span>
+                                
+                                    <span class="author-badge">Lv1</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="post-meta-info-container border-box post">
+    <div class="post-meta-info border-box">
+        
+
+        
+            <span class="meta-info-item post-create-date">
+                <i class="icon fa-solid fa-calendar-plus"></i>&nbsp;
+                <span class="datetime">2024-08-17 03:56:37</span>
+            </span>
+
+            <span class="meta-info-item post-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="datetime" data-updated="Mon Nov 18 2024 23:53:22 GMT+0800">2024-11-18 23:53:22</span>
+            </span>
+        
+
+        
+            <span class="meta-info-item post-category border-box"><i class="icon fas fa-folder"></i>&nbsp;
+                <ul class="post-category-ul">
+                    
+                            <li class="category-item"><a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+
+        
+        
+        
+        
+            <span class="meta-info-item post-pv">
+                <i class="icon fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+            </span>
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="post-content keep-markdown-body ">
+                    
+
+                    
+                         <p>本文分享一些后台开发工作中的一些系统安全性的设计与思考，后台开发中，安全性设计是至关重要的，以确保系统的整体安全性和数据的保密性。</p>
+<h1 id="数据传输安全设计"><a href="#数据传输安全设计" class="headerlink" title="数据传输安全设计"></a>数据传输安全设计</h1><p>后台系统中会涉及很多的数据传输，有 URL 传输，表单传输，响应体携带数据传输到客户端等等的数据传输形式，那么进行数据传输的过程中，我们必须充分考虑安全性建设。</p>
+<h2 id="Protobuf-协议设计注意事项"><a href="#Protobuf-协议设计注意事项" class="headerlink" title="Protobuf 协议设计注意事项"></a>Protobuf 协议设计注意事项</h2><p>后台开发与前端的交互离不开 Protobuf 协议，它决定了前端需要向后端传输的数据格式，也在一定程度上影响后台逻辑的处理；<br>以下从几个方面入手，规范设计 Protobuf 协议时的安全事项；</p>
+<h3 id="避免主人态参数暴露在协议中"><a href="#避免主人态参数暴露在协议中" class="headerlink" title="避免主人态参数暴露在协议中"></a>避免主人态参数暴露在协议中</h3><p>用户资料的设置中，不应该包含 user_id，理由如下：</p>
+<p>主人态的身份参数（如 user_id）通常是识别用户的关键数据。直接在协议中包含这些信息可能导致数据泄露或被滥用，尤其是在数据传输过程中未加密的情况下。</p>
+<p>如果攻击者能够看到 user_id，他们可能尝试利用这一信息进行未经授权的访问或进行其他恶意活动。</p>
+<p>正确的做法应该是<code>利用 JWT 或者其他安全令牌，或者会话 ID 来标识用户</code>，而不是直接在 protobuf 消息中包含 user_id。</p>
+<h3 id="谨慎使用有符号的数据类型"><a href="#谨慎使用有符号的数据类型" class="headerlink" title="谨慎使用有符号的数据类型"></a>谨慎使用有符号的数据类型</h3><p>通常我们有些数字类型的字段，比如是 int32 类型 buy_num 字段，那么从业务的角度来说这个字段应该就是正数；</p>
+<p>假设我们后台系统中，没有校验这个 buy_num 的最大值和最小值，没有做正负数的校验；</p>
+<p>那么黑客是可以将 buy_num 改成负数，从而使得他自己的代币增加，所以，在设计协议的过程中，应该定为 uint32，这样可以确保字段的最小值是正数；</p>
+<h3 id="禁止携带绕过权限的字段"><a href="#禁止携带绕过权限的字段" class="headerlink" title="禁止携带绕过权限的字段"></a>禁止携带绕过权限的字段</h3><p>有些小伙伴，在设计协议的时候，会下意识地把一些业务跟协议揉在一起，让协议承担了不该承担的事情；</p>
+<p>就比如有位小伙伴在协议中，设计了绕过权限校验地字段，用来实现超级管理员身份绕过权限的业务；</p>
+<p>那么这样子操作，黑客完全可以根据这条协议，同样的绕过权限校验；</p>
+<p>因此，<code>我们在 protobuf 中是禁止设置可以绕过权限校验的入参字段的。</code></p>
+<h2 id="数据进行-MD5-加密就稳了吗？"><a href="#数据进行-MD5-加密就稳了吗？" class="headerlink" title="数据进行 MD5 加密就稳了吗？"></a>数据进行 MD5 加密就稳了吗？</h2><p>看到一个有趣的问题，用户的密码是保密的，那么密码使用 MD5 加密后直接把密码放在 URL 请求中进行请求就行了，这样合理吗？</p>
+<p>答案是<strong>不合理</strong>的。密码的 MD5 值放在 URL 中等于是泄露了密码的 MD5 值，攻击者可以使用泄露的 MD5 值发起登录请求。</p>
+<h2 id="cookie-可以放在响应体吗？"><a href="#cookie-可以放在响应体吗？" class="headerlink" title="cookie 可以放在响应体吗？"></a>cookie 可以放在响应体吗？</h2><p>答案是<strong>不行</strong>。我们可以对比一下两种方式所体现的安全性区别；</p>
+<h3 id="使用响应体传递-cookie-数据"><a href="#使用响应体传递-cookie-数据" class="headerlink" title="使用响应体传递 cookie 数据"></a>使用响应体传递 cookie 数据</h3><ul>
+<li><p>(core)暴露在响应体中： <strong>这种方式会把 cookie 数据直接暴露在响应体的内容中。攻击者可以通过各种方式获取到这些数据，例如，通过中间人攻击（MITM）或在客户端 JavaScript 中访问到。</strong></p>
+</li>
+<li><p>缺乏浏览器自动处理：这种方式需要开发者手动处理 cookie 数据的存储和发送过程，容易出错，可能导致安全漏洞。</p>
+</li>
+<li><p>容易受到 XSS 攻击： 如果 cookie 数据暴露在响应体中，客户端的 JavaScript 代码可能会被恶意脚本访问，从而泄露 cookie 数据。</p>
+</li>
+</ul>
+<h3 id="使用-Header-传递-cookie-数据"><a href="#使用-Header-传递-cookie-数据" class="headerlink" title="使用 Header 传递 cookie 数据"></a>使用 Header 传递 cookie 数据</h3><ul>
+<li><p>浏览器自动处理： 浏览器会自动解析 Set-Cookie 头部，并将其存储在客户端的 cookie 存储区中。它会处理 cookie 的属性，比如过期时间、路径、域等。</p>
+</li>
+<li><p>属性控制：头部属性中可以使用 <strong>HttpOnly 属性来防止 JavaScript 访问 cookie，增强安全性</strong>。<strong>Secure 属性可以确保 cookie 只在 HTTPS 连接中传输。</strong></p>
+</li>
+<li><p>跨站脚本攻击 (XSS) 防护： HttpOnly 属性帮助保护 cookie 不被客户端 JavaScript 读取，从而减少了 XSS 攻击的风险。</p>
+</li>
+<li><p>跨站请求伪造 (CSRF) 防护： 可以结合其他安全机制（如 SameSite 属性）来减少 CSRF 攻击的风险。</p>
+</li>
+</ul>
+<h2 id="用户的敏感信息完整返回由浏览器打码安全吗？"><a href="#用户的敏感信息完整返回由浏览器打码安全吗？" class="headerlink" title="用户的敏感信息完整返回由浏览器打码安全吗？"></a>用户的敏感信息完整返回由浏览器打码安全吗？</h2><p>这种方式虽然说从某种意义上，用户在页面上是没办法看到完整的明文信息的，但<strong>显然是不安全</strong>的做法；</p>
+<p>这样子做，用户的敏感信息仍然可能被恶意用户通过各种手段（如浏览器开发者工具、网络抓包等）获取；</p>
+<p>正确的做法应该是由<strong>后台把数据脱敏</strong>后再返回给客户端做展示；</p>
+<h2 id="初始账户名和密码以短信形式发送安全吗？"><a href="#初始账户名和密码以短信形式发送安全吗？" class="headerlink" title="初始账户名和密码以短信形式发送安全吗？"></a>初始账户名和密码以短信形式发送安全吗？</h2><p>这种方式<strong>增加了账户密码泄露的风险</strong>，密码发送过程可能留下日志记录，传输环节和用户终端也存在泄露的可能性。</p>
+<p>我们可以用以下几种安全的方法来替换掉这种不安全的方案：</p>
+<ul>
+<li><p>使用二维码： 发送一个二维码，扫描二维码后可以引导用户到一个安全的设置页面进行密码设置。</p>
+</li>
+<li><p>使用邮箱：发送密码重置邮件或临时密码到用户的邮箱。邮箱通常比短信更安全，因为它们可以使用更强的加密和安全措施。用户点击邮件中的链接来设置新密码，这个链接通常有时效性，增强安全性。</p>
+</li>
+</ul>
+<h1 id="安全执行命令设计"><a href="#安全执行命令设计" class="headerlink" title="安全执行命令设计"></a>安全执行命令设计</h1><p>后台开发过程中，有时候会遇到有要执行命令的场景，比如执行 ls，sh-c 等命令，那么这个过程就存在被用户恶意执行的场景，所以我们要进行相关的防御；</p>
+<h2 id="禁止拼接命令"><a href="#禁止拼接命令" class="headerlink" title="禁止拼接命令"></a>禁止拼接命令</h2><p>使用 exec.Command 方法将命令和参数分开传递，这样可以避免命令注入的风险。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd := exec.Command(<span class="string">&quot;ls&quot;</span>, <span class="string">&quot;-l&quot;</span>, input)</span><br></pre></td></tr></table></figure>
+
+<p>同时要注意权限控制，确保程序运行在适当的用户权限下，避免赋予过多的系统权限，比如给用户<code>只读</code>权限；</p>
+<p>并且，要校验用户输入是否是在安全的目录下，我们可以配置一个安全的基路径 <code>safeBaseDir := &quot;/safe/base&quot;</code>，如果用户操作了此外的其他目录，那么直接返回错误；</p>
+<h2 id="输入参数限制"><a href="#输入参数限制" class="headerlink" title="输入参数限制"></a>输入参数限制</h2><p>我们可以把相关命令可能输入的参数限制在一个数组中，比如 ls 命令能输入的参数可以限制在 <code>-l, -a, -h</code> 中；</p>
+<p>然后用户输入的参数，可以与限制数组中的参数做校验，可以防止恶意命令；</p>
+<h2 id="输入参数转义"><a href="#输入参数转义" class="headerlink" title="输入参数转义"></a>输入参数转义</h2><p>我们可以对输入中的特殊字符（如 ;, &amp;, | 等）进行适当的转义，防止命令注入；</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SafeExec</span><span class="params">(userInput <span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">    <span class="comment">// 简单转义示例：禁止特殊字符</span></span><br><span class="line">    <span class="keyword">if</span> strings.ContainsAny(userInput, <span class="string">&quot;;|&amp;&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;invalid characters in input&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cmd := exec.Command(<span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, userInput)</span><br><span class="line">    <span class="keyword">return</span> cmd.Run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="鉴权安全设计"><a href="#鉴权安全设计" class="headerlink" title="鉴权安全设计"></a>鉴权安全设计</h1><h2 id="验证-session"><a href="#验证-session" class="headerlink" title="验证 session"></a>验证 session</h2><ul>
+<li>用户身份的验证应该从服务端的 session 中获取，而不使用客户端存下来的 session，这样可以避免越权漏洞的出现，举个例子：<ul>
+<li>用户A调用API获取自己的订单列表，但通过篡改请求参数试图获取其他用户的订单列表；</li>
+<li>恶意用户修改系统设置或删除其他用户的数据。通常，这些功能只有管理员有权访问。</li>
+</ul>
+</li>
+</ul>
+<h1 id="业务安全设计"><a href="#业务安全设计" class="headerlink" title="业务安全设计"></a>业务安全设计</h1><h2 id="礼包-Id-递增合适吗？"><a href="#礼包-Id-递增合适吗？" class="headerlink" title="礼包 Id 递增合适吗？"></a>礼包 Id 递增合适吗？</h2><p>项目中，往往我们会遇到一些礼品业务，那么这个礼品的 Id 是否应该设置为递增呢？</p>
+<p>答案是<strong>不能递增</strong>。</p>
+<p>如果采用了递增的礼包 Id ，那么说明礼包 Id 是可以进行遍历的，用户可以通过遍历礼包 Id 批量领取所有的礼包，显然这是违反业务的。</p>
+<p>正确的做法应该是<code>用 UUID，或者是对礼包 Id 加密</code>，确保不会出现以上情况。</p>
+<h2 id="首充业务保证只有一次"><a href="#首充业务保证只有一次" class="headerlink" title="首充业务保证只有一次"></a>首充业务保证只有一次</h2><p>首次充值业务，我们知道一个订单的有效期大概是 30 min，如果有一个用户，在多台设备触发了首充订单，相当于这个用户名下就有多个首充的订单了，然后，卡在支付流程到期间，一起支付，从而进行多次首充；</p>
+<p>那么我们该如何规避这种场景呢？</p>
+<p>很简单，我们只需要在完成一笔首充订单之后，关闭掉其他未支付的首充订单即可。</p>
+
+                    
+                </div>
+
+                
+                        
+<div class="post-copyright-info-container border-box">
+    <div class="copyright-info-content border-box">
+        <div class="copyright-info-top border-box">
+            <div class="copyright-post-title border-box text-ellipsis">
+                后台系统安全性设计的思考
+            </div>
+
+            <div class="copyright-post-link border-box text-ellipsis">
+                2024/08/17/design-后台系统安全性设计思考/
+            </div>
+        </div>
+
+        <div class="copyright-info-bottom border-box">
+            <div class="copyright-post-author bottom-item">
+                <div class="type">
+                    Author
+                </div>
+                <div class="content">Kevin</div>
+            </div>
+
+            <div class="post-time bottom-item">
+                <div class="type">
+                    Published
+                </div>
+                <div class="content">2024-08-17 03:56</div>
+            </div>
+
+
+            <div class="post-license bottom-item">
+                <div class="type">
+                    License
+                </div>
+                <div class="content tooltip" data-tooltip-content="CC BY-NC-SA 4.0">
+                    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed" target="_blank">
+                        
+                            <i class="fa-brands fa-creative-commons"></i>
+                            <i class="fa-brands fa-creative-commons-by"></i>
+                            <i class="fa-brands fa-creative-commons-nc"></i>
+                            <i class="fa-brands fa-creative-commons-sa"></i>
+                        
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <i class="copyright-bg fa-solid fa-copyright"></i>
+    </div>
+    <div class="copy-copyright-info flex-center tooltip" data-tooltip-content="Copy copyright info" data-tooltip-offset-y="-2px">
+        <i class="fa-solid fa-copy"></i>
+    </div>
+</div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                    </div>
+                    <div>
+                        
+                            <div class="post-share-container border-box">
+    <ul class="share-list-wrap border-box">
+        <li class="qq share-item border-box flex-center tooltip"
+            data-tooltip-content="Share to QQ"
+        >
+            <i class="fa-brands fa-qq"></i>
+        </li>
+        <li class="wechat share-item border-box flex-center tooltip tooltip-img"
+            data-tooltip-content="Share to WeChat"
+            data-tooltip-img-tip="Scan by WeChat"
+            data-tooltip-img-style="background-color: #fff; top: -10px; padding: 0.6rem 0.6rem 0.1rem 0.6rem;"
+        >
+            <i class="fa-brands fa-weixin"></i>
+        </li>
+        <li class="weibo share-item border-box flex-center tooltip"
+            data-tooltip-content="Share to WeiBo"
+        >
+            <i class="fa-brands fa-weibo"></i>
+        </li>
+    </ul>
+</div>
+
+                        
+                    </div>
+                </div>
+
+                
+                    
+
+<div class="reward-author-container border-box flex-center">
+    <div class="reward-btn border-box flex-center tooltip tooltip-img"
+            data-tooltip-img-url="/images/reward.png"
+            data-tooltip-img-trigger="click"
+            data-tooltip-img-style="top: -6px;"
+    >
+        <i class="fa-solid fa-hand-holding-heart"></i>&nbsp;REWARD AUTHOR
+    </div>
+</div>
+
+                
+
+                
+                    <div class="post-nav border-box">
+                        
+                            <div class="prev-post">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2024/08/18/protobuf-protobuf%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/"
+                                   title="Linux Protobuffer 详细安装教程"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Linux Protobuffer 详细安装教程</span>
+                                        <span class="post-nav-item">Prev posts</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                            <div class="next-post">
+                                <a class="next"
+                                   rel="next"
+                                   href="/2024/08/14/linux-%E8%A7%A3%E5%86%B3%E9%85%8D%E7%BD%AE%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E5%90%8Eroot%E5%85%8D%E5%AF%86%E5%A4%B1%E6%95%88%E7%9A%84%E9%97%AE%E9%A2%98/"
+                                   title="解决 Linux 配置免密登录后 root 登录免密失效的问题"
+                                >
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">解决 Linux 配置免密登录后 root 登录免密失效的问题</span>
+                                        <span class="post-nav-item">Next posts</span>
+                                    </span>
+                                    <span class="right arrow-icon flex-center">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                    </div>
+                
+
+                
+                    
+
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="post-tools-list border-box">
+        <!-- PC encrypt again -->
+        
+
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+
+        <!-- PC full screen -->
+        <li class="tools-item flex-center full-screen">
+            <i class="fa-solid fa-expand"></i>
+        </li>
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <!-- toggle mode -->
+        
+
+        <!-- rss -->
+        
+
+        <!-- to bottom -->
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+
+
+<!-- common js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/utils.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/header-shrink.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/back2top.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/toggle-theme.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/code-block.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/main.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/libs/anime.min.js"></script>
+
+<!-- local search -->
+
+
+<!-- lazyload -->
+
+
+<div class="">
+    <!-- home page -->
+    
+
+    <!-- post page -->
+    
+        <!-- post-helper -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/post/post-helper.min.js"></script>
+
+        <!-- toc -->
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/post/toc.min.js"></script>
+        
+
+        <!-- copyright-info -->
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/post/copyright-info.min.js"></script>
+        
+
+        <!-- share -->
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-theme-keep/4.2.1/js/post/share.min.js"></script>
+        
+    
+
+    <!-- categories page -->
+    
+
+    <!-- links page -->
+    
+
+    <!-- photos page -->
+    
+
+    <!-- tools page -->
+    
+</div>
+
+<!-- mermaid -->
+
+
+<!-- pjax -->
+
+
+
+</body>
+</html>
