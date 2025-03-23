@@ -1,85 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>后台系统安全性设计的思考</title>
-    <url>/2024/08/17/design-%E5%90%8E%E5%8F%B0%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/</url>
-    <content><![CDATA[<p>本文分享一些后台开发工作中的一些系统安全性的设计与思考，后台开发中，安全性设计是至关重要的，以确保系统的整体安全性和数据的保密性。</p>
-<h1 id="数据传输安全设计"><a href="#数据传输安全设计" class="headerlink" title="数据传输安全设计"></a>数据传输安全设计</h1><p>后台系统中会涉及很多的数据传输，有 URL 传输，表单传输，响应体携带数据传输到客户端等等的数据传输形式，那么进行数据传输的过程中，我们必须充分考虑安全性建设。</p>
-<h2 id="Protobuf-协议设计注意事项"><a href="#Protobuf-协议设计注意事项" class="headerlink" title="Protobuf 协议设计注意事项"></a>Protobuf 协议设计注意事项</h2><p>后台开发与前端的交互离不开 Protobuf 协议，它决定了前端需要向后端传输的数据格式，也在一定程度上影响后台逻辑的处理；<br>以下从几个方面入手，规范设计 Protobuf 协议时的安全事项；</p>
-<h3 id="避免主人态参数暴露在协议中"><a href="#避免主人态参数暴露在协议中" class="headerlink" title="避免主人态参数暴露在协议中"></a>避免主人态参数暴露在协议中</h3><p>用户资料的设置中，不应该包含 user_id，理由如下：</p>
-<p>主人态的身份参数（如 user_id）通常是识别用户的关键数据。直接在协议中包含这些信息可能导致数据泄露或被滥用，尤其是在数据传输过程中未加密的情况下。</p>
-<p>如果攻击者能够看到 user_id，他们可能尝试利用这一信息进行未经授权的访问或进行其他恶意活动。</p>
-<p>正确的做法应该是<code>利用 JWT 或者其他安全令牌，或者会话 ID 来标识用户</code>，而不是直接在 protobuf 消息中包含 user_id。</p>
-<h3 id="谨慎使用有符号的数据类型"><a href="#谨慎使用有符号的数据类型" class="headerlink" title="谨慎使用有符号的数据类型"></a>谨慎使用有符号的数据类型</h3><p>通常我们有些数字类型的字段，比如是 int32 类型 buy_num 字段，那么从业务的角度来说这个字段应该就是正数；</p>
-<p>假设我们后台系统中，没有校验这个 buy_num 的最大值和最小值，没有做正负数的校验；</p>
-<p>那么黑客是可以将 buy_num 改成负数，从而使得他自己的代币增加，所以，在设计协议的过程中，应该定为 uint32，这样可以确保字段的最小值是正数；</p>
-<h3 id="禁止携带绕过权限的字段"><a href="#禁止携带绕过权限的字段" class="headerlink" title="禁止携带绕过权限的字段"></a>禁止携带绕过权限的字段</h3><p>有些小伙伴，在设计协议的时候，会下意识地把一些业务跟协议揉在一起，让协议承担了不该承担的事情；</p>
-<p>就比如有位小伙伴在协议中，设计了绕过权限校验地字段，用来实现超级管理员身份绕过权限的业务；</p>
-<p>那么这样子操作，黑客完全可以根据这条协议，同样的绕过权限校验；</p>
-<p>因此，<code>我们在 protobuf 中是禁止设置可以绕过权限校验的入参字段的。</code></p>
-<h2 id="数据进行-MD5-加密就稳了吗？"><a href="#数据进行-MD5-加密就稳了吗？" class="headerlink" title="数据进行 MD5 加密就稳了吗？"></a>数据进行 MD5 加密就稳了吗？</h2><p>看到一个有趣的问题，用户的密码是保密的，那么密码使用 MD5 加密后直接把密码放在 URL 请求中进行请求就行了，这样合理吗？</p>
-<p>答案是<strong>不合理</strong>的。密码的 MD5 值放在 URL 中等于是泄露了密码的 MD5 值，攻击者可以使用泄露的 MD5 值发起登录请求。</p>
-<h2 id="cookie-可以放在响应体吗？"><a href="#cookie-可以放在响应体吗？" class="headerlink" title="cookie 可以放在响应体吗？"></a>cookie 可以放在响应体吗？</h2><p>答案是<strong>不行</strong>。我们可以对比一下两种方式所体现的安全性区别；</p>
-<h3 id="使用响应体传递-cookie-数据"><a href="#使用响应体传递-cookie-数据" class="headerlink" title="使用响应体传递 cookie 数据"></a>使用响应体传递 cookie 数据</h3><ul>
-<li><p>(core)暴露在响应体中： <strong>这种方式会把 cookie 数据直接暴露在响应体的内容中。攻击者可以通过各种方式获取到这些数据，例如，通过中间人攻击（MITM）或在客户端 JavaScript 中访问到。</strong></p>
-</li>
-<li><p>缺乏浏览器自动处理：这种方式需要开发者手动处理 cookie 数据的存储和发送过程，容易出错，可能导致安全漏洞。</p>
-</li>
-<li><p>容易受到 XSS 攻击： 如果 cookie 数据暴露在响应体中，客户端的 JavaScript 代码可能会被恶意脚本访问，从而泄露 cookie 数据。</p>
-</li>
-</ul>
-<h3 id="使用-Header-传递-cookie-数据"><a href="#使用-Header-传递-cookie-数据" class="headerlink" title="使用 Header 传递 cookie 数据"></a>使用 Header 传递 cookie 数据</h3><ul>
-<li><p>浏览器自动处理： 浏览器会自动解析 Set-Cookie 头部，并将其存储在客户端的 cookie 存储区中。它会处理 cookie 的属性，比如过期时间、路径、域等。</p>
-</li>
-<li><p>属性控制：头部属性中可以使用 <strong>HttpOnly 属性来防止 JavaScript 访问 cookie，增强安全性</strong>。<strong>Secure 属性可以确保 cookie 只在 HTTPS 连接中传输。</strong></p>
-</li>
-<li><p>跨站脚本攻击 (XSS) 防护： HttpOnly 属性帮助保护 cookie 不被客户端 JavaScript 读取，从而减少了 XSS 攻击的风险。</p>
-</li>
-<li><p>跨站请求伪造 (CSRF) 防护： 可以结合其他安全机制（如 SameSite 属性）来减少 CSRF 攻击的风险。</p>
-</li>
-</ul>
-<h2 id="用户的敏感信息完整返回由浏览器打码安全吗？"><a href="#用户的敏感信息完整返回由浏览器打码安全吗？" class="headerlink" title="用户的敏感信息完整返回由浏览器打码安全吗？"></a>用户的敏感信息完整返回由浏览器打码安全吗？</h2><p>这种方式虽然说从某种意义上，用户在页面上是没办法看到完整的明文信息的，但<strong>显然是不安全</strong>的做法；</p>
-<p>这样子做，用户的敏感信息仍然可能被恶意用户通过各种手段（如浏览器开发者工具、网络抓包等）获取；</p>
-<p>正确的做法应该是由<strong>后台把数据脱敏</strong>后再返回给客户端做展示；</p>
-<h2 id="初始账户名和密码以短信形式发送安全吗？"><a href="#初始账户名和密码以短信形式发送安全吗？" class="headerlink" title="初始账户名和密码以短信形式发送安全吗？"></a>初始账户名和密码以短信形式发送安全吗？</h2><p>这种方式<strong>增加了账户密码泄露的风险</strong>，密码发送过程可能留下日志记录，传输环节和用户终端也存在泄露的可能性。</p>
-<p>我们可以用以下几种安全的方法来替换掉这种不安全的方案：</p>
-<ul>
-<li><p>使用二维码： 发送一个二维码，扫描二维码后可以引导用户到一个安全的设置页面进行密码设置。</p>
-</li>
-<li><p>使用邮箱：发送密码重置邮件或临时密码到用户的邮箱。邮箱通常比短信更安全，因为它们可以使用更强的加密和安全措施。用户点击邮件中的链接来设置新密码，这个链接通常有时效性，增强安全性。</p>
-</li>
-</ul>
-<h1 id="安全执行命令设计"><a href="#安全执行命令设计" class="headerlink" title="安全执行命令设计"></a>安全执行命令设计</h1><p>后台开发过程中，有时候会遇到有要执行命令的场景，比如执行 ls，sh-c 等命令，那么这个过程就存在被用户恶意执行的场景，所以我们要进行相关的防御；</p>
-<h2 id="禁止拼接命令"><a href="#禁止拼接命令" class="headerlink" title="禁止拼接命令"></a>禁止拼接命令</h2><p>使用 exec.Command 方法将命令和参数分开传递，这样可以避免命令注入的风险。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">cmd := exec.Command(<span class="string">&quot;ls&quot;</span>, <span class="string">&quot;-l&quot;</span>, input)</span><br></pre></td></tr></table></figure>
-
-<p>同时要注意权限控制，确保程序运行在适当的用户权限下，避免赋予过多的系统权限，比如给用户<code>只读</code>权限；</p>
-<p>并且，要校验用户输入是否是在安全的目录下，我们可以配置一个安全的基路径 <code>safeBaseDir := &quot;/safe/base&quot;</code>，如果用户操作了此外的其他目录，那么直接返回错误；</p>
-<h2 id="输入参数限制"><a href="#输入参数限制" class="headerlink" title="输入参数限制"></a>输入参数限制</h2><p>我们可以把相关命令可能输入的参数限制在一个数组中，比如 ls 命令能输入的参数可以限制在 <code>-l, -a, -h</code> 中；</p>
-<p>然后用户输入的参数，可以与限制数组中的参数做校验，可以防止恶意命令；</p>
-<h2 id="输入参数转义"><a href="#输入参数转义" class="headerlink" title="输入参数转义"></a>输入参数转义</h2><p>我们可以对输入中的特殊字符（如 ;, &amp;, | 等）进行适当的转义，防止命令注入；</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SafeExec</span><span class="params">(userInput <span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">    <span class="comment">// 简单转义示例：禁止特殊字符</span></span><br><span class="line">    <span class="keyword">if</span> strings.ContainsAny(userInput, <span class="string">&quot;;|&amp;&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;invalid characters in input&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cmd := exec.Command(<span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, userInput)</span><br><span class="line">    <span class="keyword">return</span> cmd.Run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="鉴权安全设计"><a href="#鉴权安全设计" class="headerlink" title="鉴权安全设计"></a>鉴权安全设计</h1><h2 id="验证-session"><a href="#验证-session" class="headerlink" title="验证 session"></a>验证 session</h2><ul>
-<li>用户身份的验证应该从服务端的 session 中获取，而不使用客户端存下来的 session，这样可以避免越权漏洞的出现，举个例子：<ul>
-<li>用户A调用API获取自己的订单列表，但通过篡改请求参数试图获取其他用户的订单列表；</li>
-<li>恶意用户修改系统设置或删除其他用户的数据。通常，这些功能只有管理员有权访问。</li>
-</ul>
-</li>
-</ul>
-<h1 id="业务安全设计"><a href="#业务安全设计" class="headerlink" title="业务安全设计"></a>业务安全设计</h1><h2 id="礼包-Id-递增合适吗？"><a href="#礼包-Id-递增合适吗？" class="headerlink" title="礼包 Id 递增合适吗？"></a>礼包 Id 递增合适吗？</h2><p>项目中，往往我们会遇到一些礼品业务，那么这个礼品的 Id 是否应该设置为递增呢？</p>
-<p>答案是<strong>不能递增</strong>。</p>
-<p>如果采用了递增的礼包 Id ，那么说明礼包 Id 是可以进行遍历的，用户可以通过遍历礼包 Id 批量领取所有的礼包，显然这是违反业务的。</p>
-<p>正确的做法应该是<code>用 UUID，或者是对礼包 Id 加密</code>，确保不会出现以上情况。</p>
-<h2 id="首充业务保证只有一次"><a href="#首充业务保证只有一次" class="headerlink" title="首充业务保证只有一次"></a>首充业务保证只有一次</h2><p>首次充值业务，我们知道一个订单的有效期大概是 30 min，如果有一个用户，在多台设备触发了首充订单，相当于这个用户名下就有多个首充的订单了，然后，卡在支付流程到期间，一起支付，从而进行多次首充；</p>
-<p>那么我们该如何规避这种场景呢？</p>
-<p>很简单，我们只需要在完成一笔首充订单之后，关闭掉其他未支付的首充订单即可。</p>
-]]></content>
-      <categories>
-        <category>系统设计</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Linux Docker 快速安装教程</title>
     <url>/2024/08/11/docker-linux%20docker%E5%BF%AB%E9%80%9F%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/</url>
     <content><![CDATA[<h1 id="docker-依赖安装"><a href="#docker-依赖安装" class="headerlink" title="docker 依赖安装"></a>docker 依赖安装</h1><p>docker 环境依赖于gcc，gcc-c++等环境，故我们需要先将基础依赖构建起来，执行以下命令开始构建：</p>
@@ -310,6 +231,355 @@
 ]]></content>
       <categories>
         <category>Protobuffer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>快速了解ElasticSearch的核心概念</title>
+    <url>/2025/03/22/es-%E4%BA%86%E8%A7%A3ElasticSearch%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="ES是什么？"><a href="#ES是什么？" class="headerlink" title="ES是什么？"></a>ES是什么？</h1><p>Elasticsearch 本质上是一个面向文档的非关系型数据库。为了更好地理解 Elasticsearch 的架构，我们可以将其与 MySQL 的关系型数据库进行对比：</p>
+<table>
+<thead>
+<tr>
+<th align="center">MySQL</th>
+<th align="center">Elasticsearch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">数据库(database)</td>
+<td align="center">索引(indices)</td>
+</tr>
+<tr>
+<td align="center">表(tables)</td>
+<td align="center">类型(types)</td>
+</tr>
+<tr>
+<td align="center">行(rows)</td>
+<td align="center">文档(documents)</td>
+</tr>
+<tr>
+<td align="center">字段(columns)</td>
+<td align="center">字(fields)</td>
+</tr>
+</tbody></table>
+<p>从以上对比我们可以看出，elasticsearch(集群)中可以包含多个索引(数据库)，每个索引中可以包含多个类型(表)，每个类型下又包含多个文档(行)，每个文档中又包含多个字段(列)</p>
+<p><strong>架构设计</strong></p>
+<ol>
+<li><p><strong>物理设计</strong>：<br> elasticsearch 在后台把每个索引划分成多个分片，每份分片可以在集群中的不同服务器间迁移，即分片既可以存在于节点A，也可以存在于节点B</p>
+</li>
+<li><p><strong>逻辑设计</strong>：<br> 一个索引类型中，包含多个doc，比如说doc1，doc2。<br> 当我们索引一篇doc时，可以通过这样的一个顺序找到它：<strong>索引 &#x3D;&gt; 类型 &#x3D;&gt; docID</strong></p>
+</li>
+</ol>
+<h1 id="ES-中的文档-documents"><a href="#ES-中的文档-documents" class="headerlink" title="ES 中的文档 documents"></a>ES 中的文档 documents</h1><p>elasticsearch 是面向文档(doc)的，那么就意味着索引和搜索数据的最小单位是文档</p>
+<p>doc的重要属性如下 :</p>
+<ol>
+<li><p>可以理解成JSON对象<br> doc中存储的是 <code>key:value</code> 的形式</p>
+</li>
+<li><p>不依赖预定义的模式<br> 关系型数据库要先定义好字段才能使用<br> es 中对字段是灵活的，可以随意忽略字段，添加字段</p>
+</li>
+</ol>
+<h1 id="ES-中的类型-types"><a href="#ES-中的类型-types" class="headerlink" title="ES 中的类型 types"></a>ES 中的类型 types</h1><p>类型(types)是doc的上一级容器，就像 MySQL 一样，表(table)是行记录的容器。</p>
+<p>类型中对于字段的定义称为映射，比如字段 name 映射为字符串类型。 </p>
+<p><strong>注意事项</strong>：  </p>
+<ul>
+<li>​字段映射的弹性：<ul>
+<li>新增字段时，ES 会自动将其加入映射，但会尝试<strong>猜测</strong>字段类型，这可能导致类型错误。</li>
+<li>​最佳实践：提前定义好所需的映射，类似于关系型数据库中提前定义表结构</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><em>ES 7.x 开始，类型已经被废弃了，建议直接使用索引来组织 doc</em></p>
+</blockquote>
+<h1 id="ES-中的索引-indices"><a href="#ES-中的索引-indices" class="headerlink" title="ES 中的索引 indices"></a>ES 中的索引 indices</h1><p>索引(indices)是type的上一级容器，<strong>ES 7.x</strong> 后，索引直接管理 doc，相当于是 doc 的上一级容器。</p>
+<p>ES 中的索引可以看作是一个非常庞大的 doc 集合。索引存储这些 doc 的时候将 doc 映射到了各个分片上。</p>
+<p>单个 ES 节点就是一个 ES 进程，节点上存储多个索引 (<em>类比 MySQL 节点上存储多个数据库</em>)。</p>
+<p><strong>节点和分片的工作流</strong>  </p>
+<ol>
+<li><p>分片机制：<br> 创建索引时，默认由 5 个主分片（Primary Shard）和 1 个主分片的副本（Replica Shard）组成。</p>
+</li>
+<li><p>​高可用性：<br> 分片和副本不存储在同一节点上，可以防止单点故障。</p>
+</li>
+</ol>
+<h2 id="倒排索引是什么？"><a href="#倒排索引是什么？" class="headerlink" title="倒排索引是什么？"></a>倒排索引是什么？</h2><p>倒排索引是将词条 (term) 映射到包含该词条的 docID 的数据结构，适合快速搜索</p>
+<p>从例子出发，假设我们有两个doc:</p>
+<ul>
+<li><strong>doc_1：苹果旗舰很好用</strong>  </li>
+<li><strong>doc_2：小米旗舰性能很高</strong></li>
+</ul>
+<p>为了创建倒排索引，我们首先要将文档拆分成词条(term)</p>
+<table>
+<thead>
+<tr>
+<th align="center">term</th>
+<th align="center">doc_1</th>
+<th align="center">doc_2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">苹果</td>
+<td align="center">✅</td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td align="center">小米</td>
+<td align="center">❌</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">旗舰</td>
+<td align="center">✅</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">性能</td>
+<td align="center">❌</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">很</td>
+<td align="center">✅</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">高</td>
+<td align="center">❌</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">好用</td>
+<td align="center">✅</td>
+<td align="center">❌</td>
+</tr>
+</tbody></table>
+<p>那么假设我们现在的搜索 case 是：性能旗舰</p>
+<table>
+<thead>
+<tr>
+<th align="center">term</th>
+<th align="center">doc_1</th>
+<th align="center">doc_2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">性能</td>
+<td align="center">❌</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">旗舰</td>
+<td align="center">✅</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">score</td>
+<td align="center">1</td>
+<td align="center">2</td>
+</tr>
+</tbody></table>
+<p>最终，doc_1 和 doc_2 都会被返回，但 doc_2 的匹配得分更高。</p>
+<h2 id="正排索引是什么？"><a href="#正排索引是什么？" class="headerlink" title="正排索引是什么？"></a>正排索引是什么？</h2><p>其实弄明白倒排索引后，正排索引其实很简单。</p>
+<p>按照惯例举个例子，假设我们有两个doc:</p>
+<ul>
+<li><strong>doc_1：苹果旗舰很好用</strong>  </li>
+<li><strong>doc_2：小米旗舰性能很高</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">doc_id</th>
+<th align="center">doc_detail</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">doc_1</td>
+<td align="center">苹果旗舰很好用</td>
+</tr>
+<tr>
+<td align="center">doc_2</td>
+<td align="center">小米旗舰性能很高</td>
+</tr>
+</tbody></table>
+<p>那么正排索引就相当于是，我们根据 doc_id 查找到对应的 doc 详情。</p>
+<h1 id="分词"><a href="#分词" class="headerlink" title="分词"></a>分词</h1><p><strong>什么是分词？</strong><br>分词是把一段内容划分成多个关键字，我们在搜索时候会把输入的query进行分词，然后进行匹配操作。</p>
+<p><strong>中文分词的挑战</strong><br>默认情况下，Elasticsearch 的分词器（如标准分词器）会将每个中文字符视为一个词，例如：  </p>
+<ul>
+<li>query： “我爱大梅沙” </li>
+<li>分词结果：[“我”，”爱”，”大”, “梅”，”沙”]</li>
+</ul>
+<p>这显然不符合要求，因此需要使用分词插件；</p>
+<p>这里通常是使用百度开发的开源中文分词器 <strong>IK Analyzer</strong>，支持细粒度和智能分词</p>
+<p><strong>如何自定义分词呢？</strong></p>
+<p>以 IK Analyzer 为例：</p>
+<ol>
+<li>进入配置目录</li>
+</ol>
+<ul>
+<li>cd elasticsearch&#x2F;plugins&#x2F;ik&#x2F;config</li>
+</ul>
+<ol start="2">
+<li>创建自定义词库文件</li>
+</ol>
+<ul>
+<li>touch diy_terms.dic</li>
+</ul>
+<ol start="3">
+<li><p>修改 ik&#x2F;config&#x2F;IKAnalyzer.cfg.xml 配置</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">comment</span>&gt;</span>IK Analyzer 扩展配置<span class="tag">&lt;/<span class="name">comment</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;ext_dict&quot;</span>&gt;</span>diy_terms.dic<span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;ext_stopwords&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>重启 ElasticSearch</strong>，使配置生效</p>
+</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li><strong>文档</strong> 是 Elasticsearch 的核心单位&#x2F;最小单位，存储 KV 格式的数据</li>
+<li><strong>索引</strong> 是 文档 (doc) 的集合，支持分片和副本的高可用设计</li>
+<li><strong>倒排索引</strong> 用来快速搜索 doc_id</li>
+<li><strong>正排索引</strong> 用来快速获取文档详情</li>
+<li><strong>分词</strong> 是搜索的关键，合理的分词配置能显著提升搜索效果</li>
+</ul>
+]]></content>
+      <categories>
+        <category>ElasticSearch</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>安全性设计的思考</title>
+    <url>/2024/08/17/backend-%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/</url>
+    <content><![CDATA[<p>本文分享一些后台开发工作中的一些系统安全性的设计与思考，后台开发中，安全性设计是至关重要的，以确保系统的整体安全性和数据的保密性。</p>
+<h1 id="数据传输安全设计"><a href="#数据传输安全设计" class="headerlink" title="数据传输安全设计"></a>数据传输安全设计</h1><p>后台系统中会涉及很多的数据传输，有 URL 传输，表单传输，响应体携带数据传输到客户端等等的数据传输形式，那么进行数据传输的过程中，我们必须充分考虑安全性建设。</p>
+<h2 id="Protobuf-协议设计注意事项"><a href="#Protobuf-协议设计注意事项" class="headerlink" title="Protobuf 协议设计注意事项"></a>Protobuf 协议设计注意事项</h2><p>后台开发与前端的交互离不开 Protobuf 协议，它决定了前端需要向后端传输的数据格式，也在一定程度上影响后台逻辑的处理；<br>以下从几个方面入手，规范设计 Protobuf 协议时的安全事项；</p>
+<h3 id="避免主人态参数暴露在协议中"><a href="#避免主人态参数暴露在协议中" class="headerlink" title="避免主人态参数暴露在协议中"></a>避免主人态参数暴露在协议中</h3><p>用户资料的设置中，不应该包含 user_id，理由如下：</p>
+<p>主人态的身份参数（如 user_id）通常是识别用户的关键数据。直接在协议中包含这些信息可能导致数据泄露或被滥用，尤其是在数据传输过程中未加密的情况下。</p>
+<p>如果攻击者能够看到 user_id，他们可能尝试利用这一信息进行未经授权的访问或进行其他恶意活动。</p>
+<p>正确的做法应该是<code>利用 JWT 或者其他安全令牌，或者会话 ID 来标识用户</code>，而不是直接在 protobuf 消息中包含 user_id。</p>
+<h3 id="谨慎使用有符号的数据类型"><a href="#谨慎使用有符号的数据类型" class="headerlink" title="谨慎使用有符号的数据类型"></a>谨慎使用有符号的数据类型</h3><p>通常我们有些数字类型的字段，比如是 int32 类型 buy_num 字段，那么从业务的角度来说这个字段应该就是正数；</p>
+<p>假设我们后台系统中，没有校验这个 buy_num 的最大值和最小值，没有做正负数的校验；</p>
+<p>那么黑客是可以将 buy_num 改成负数，从而使得他自己的代币增加，所以，在设计协议的过程中，应该定为 uint32，这样可以确保字段的最小值是正数；</p>
+<h3 id="禁止携带绕过权限的字段"><a href="#禁止携带绕过权限的字段" class="headerlink" title="禁止携带绕过权限的字段"></a>禁止携带绕过权限的字段</h3><p>有些小伙伴，在设计协议的时候，会下意识地把一些业务跟协议揉在一起，让协议承担了不该承担的事情；</p>
+<p>就比如有位小伙伴在协议中，设计了绕过权限校验地字段，用来实现超级管理员身份绕过权限的业务；</p>
+<p>那么这样子操作，黑客完全可以根据这条协议，同样的绕过权限校验；</p>
+<p>因此，<code>我们在 protobuf 中是禁止设置可以绕过权限校验的入参字段的。</code></p>
+<h2 id="数据进行-MD5-加密就稳了吗？"><a href="#数据进行-MD5-加密就稳了吗？" class="headerlink" title="数据进行 MD5 加密就稳了吗？"></a>数据进行 MD5 加密就稳了吗？</h2><p>看到一个有趣的问题，用户的密码是保密的，那么密码使用 MD5 加密后直接把密码放在 URL 请求中进行请求就行了，这样合理吗？</p>
+<p>答案是<strong>不合理</strong>的。密码的 MD5 值放在 URL 中等于是泄露了密码的 MD5 值，攻击者可以使用泄露的 MD5 值发起登录请求。</p>
+<h2 id="cookie-可以放在响应体吗？"><a href="#cookie-可以放在响应体吗？" class="headerlink" title="cookie 可以放在响应体吗？"></a>cookie 可以放在响应体吗？</h2><p>答案是<strong>不行</strong>。我们可以对比一下两种方式所体现的安全性区别；</p>
+<h3 id="使用响应体传递-cookie-数据"><a href="#使用响应体传递-cookie-数据" class="headerlink" title="使用响应体传递 cookie 数据"></a>使用响应体传递 cookie 数据</h3><ul>
+<li><p>(core)暴露在响应体中： <strong>这种方式会把 cookie 数据直接暴露在响应体的内容中。攻击者可以通过各种方式获取到这些数据，例如，通过中间人攻击（MITM）或在客户端 JavaScript 中访问到。</strong></p>
+</li>
+<li><p>缺乏浏览器自动处理：这种方式需要开发者手动处理 cookie 数据的存储和发送过程，容易出错，可能导致安全漏洞。</p>
+</li>
+<li><p>容易受到 XSS 攻击： 如果 cookie 数据暴露在响应体中，客户端的 JavaScript 代码可能会被恶意脚本访问，从而泄露 cookie 数据。</p>
+</li>
+</ul>
+<h3 id="使用-Header-传递-cookie-数据"><a href="#使用-Header-传递-cookie-数据" class="headerlink" title="使用 Header 传递 cookie 数据"></a>使用 Header 传递 cookie 数据</h3><ul>
+<li><p>浏览器自动处理： 浏览器会自动解析 Set-Cookie 头部，并将其存储在客户端的 cookie 存储区中。它会处理 cookie 的属性，比如过期时间、路径、域等。</p>
+</li>
+<li><p>属性控制：头部属性中可以使用 <strong>HttpOnly 属性来防止 JavaScript 访问 cookie，增强安全性</strong>。<strong>Secure 属性可以确保 cookie 只在 HTTPS 连接中传输。</strong></p>
+</li>
+<li><p>跨站脚本攻击 (XSS) 防护： HttpOnly 属性帮助保护 cookie 不被客户端 JavaScript 读取，从而减少了 XSS 攻击的风险。</p>
+</li>
+<li><p>跨站请求伪造 (CSRF) 防护： 可以结合其他安全机制（如 SameSite 属性）来减少 CSRF 攻击的风险。</p>
+</li>
+</ul>
+<h2 id="用户的敏感信息完整返回由浏览器打码安全吗？"><a href="#用户的敏感信息完整返回由浏览器打码安全吗？" class="headerlink" title="用户的敏感信息完整返回由浏览器打码安全吗？"></a>用户的敏感信息完整返回由浏览器打码安全吗？</h2><p>这种方式虽然说从某种意义上，用户在页面上是没办法看到完整的明文信息的，但<strong>显然是不安全</strong>的做法；</p>
+<p>这样子做，用户的敏感信息仍然可能被恶意用户通过各种手段（如浏览器开发者工具、网络抓包等）获取；</p>
+<p>正确的做法应该是由<strong>后台把数据脱敏</strong>后再返回给客户端做展示；</p>
+<h2 id="初始账户名和密码以短信形式发送安全吗？"><a href="#初始账户名和密码以短信形式发送安全吗？" class="headerlink" title="初始账户名和密码以短信形式发送安全吗？"></a>初始账户名和密码以短信形式发送安全吗？</h2><p>这种方式<strong>增加了账户密码泄露的风险</strong>，密码发送过程可能留下日志记录，传输环节和用户终端也存在泄露的可能性。</p>
+<p>我们可以用以下几种安全的方法来替换掉这种不安全的方案：</p>
+<ul>
+<li><p>使用二维码： 发送一个二维码，扫描二维码后可以引导用户到一个安全的设置页面进行密码设置。</p>
+</li>
+<li><p>使用邮箱：发送密码重置邮件或临时密码到用户的邮箱。邮箱通常比短信更安全，因为它们可以使用更强的加密和安全措施。用户点击邮件中的链接来设置新密码，这个链接通常有时效性，增强安全性。</p>
+</li>
+</ul>
+<h1 id="安全执行命令设计"><a href="#安全执行命令设计" class="headerlink" title="安全执行命令设计"></a>安全执行命令设计</h1><p>后台开发过程中，有时候会遇到有要执行命令的场景，比如执行 ls，sh-c 等命令，那么这个过程就存在被用户恶意执行的场景，所以我们要进行相关的防御；</p>
+<h2 id="禁止拼接命令"><a href="#禁止拼接命令" class="headerlink" title="禁止拼接命令"></a>禁止拼接命令</h2><p>使用 exec.Command 方法将命令和参数分开传递，这样可以避免命令注入的风险。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">cmd := exec.Command(<span class="string">&quot;ls&quot;</span>, <span class="string">&quot;-l&quot;</span>, input)</span><br></pre></td></tr></table></figure>
+
+<p>同时要注意权限控制，确保程序运行在适当的用户权限下，避免赋予过多的系统权限，比如给用户<code>只读</code>权限；</p>
+<p>并且，要校验用户输入是否是在安全的目录下，我们可以配置一个安全的基路径 <code>safeBaseDir := &quot;/safe/base&quot;</code>，如果用户操作了此外的其他目录，那么直接返回错误；</p>
+<h2 id="输入参数限制"><a href="#输入参数限制" class="headerlink" title="输入参数限制"></a>输入参数限制</h2><p>我们可以把相关命令可能输入的参数限制在一个数组中，比如 ls 命令能输入的参数可以限制在 <code>-l, -a, -h</code> 中；</p>
+<p>然后用户输入的参数，可以与限制数组中的参数做校验，可以防止恶意命令；</p>
+<h2 id="输入参数转义"><a href="#输入参数转义" class="headerlink" title="输入参数转义"></a>输入参数转义</h2><p>我们可以对输入中的特殊字符（如 ;, &amp;, | 等）进行适当的转义，防止命令注入；</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SafeExec</span><span class="params">(userInput <span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">    <span class="comment">// 简单转义示例：禁止特殊字符</span></span><br><span class="line">    <span class="keyword">if</span> strings.ContainsAny(userInput, <span class="string">&quot;;|&amp;&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;invalid characters in input&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cmd := exec.Command(<span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, userInput)</span><br><span class="line">    <span class="keyword">return</span> cmd.Run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="鉴权安全设计"><a href="#鉴权安全设计" class="headerlink" title="鉴权安全设计"></a>鉴权安全设计</h1><h2 id="验证-session"><a href="#验证-session" class="headerlink" title="验证 session"></a>验证 session</h2><ul>
+<li>用户身份的验证应该从服务端的 session 中获取，而不使用客户端存下来的 session，这样可以避免越权漏洞的出现，举个例子：<ul>
+<li>用户A调用API获取自己的订单列表，但通过篡改请求参数试图获取其他用户的订单列表；</li>
+<li>恶意用户修改系统设置或删除其他用户的数据。通常，这些功能只有管理员有权访问。</li>
+</ul>
+</li>
+</ul>
+<h1 id="业务安全设计"><a href="#业务安全设计" class="headerlink" title="业务安全设计"></a>业务安全设计</h1><h2 id="礼包-Id-递增合适吗？"><a href="#礼包-Id-递增合适吗？" class="headerlink" title="礼包 Id 递增合适吗？"></a>礼包 Id 递增合适吗？</h2><p>项目中，往往我们会遇到一些礼品业务，那么这个礼品的 Id 是否应该设置为递增呢？</p>
+<p>答案是<strong>不能递增</strong>。</p>
+<p>如果采用了递增的礼包 Id ，那么说明礼包 Id 是可以进行遍历的，用户可以通过遍历礼包 Id 批量领取所有的礼包，显然这是违反业务的。</p>
+<p>正确的做法应该是<code>用 UUID，或者是对礼包 Id 加密</code>，确保不会出现以上情况。</p>
+<h2 id="首充业务保证只有一次"><a href="#首充业务保证只有一次" class="headerlink" title="首充业务保证只有一次"></a>首充业务保证只有一次</h2><p>首次充值业务，我们知道一个订单的有效期大概是 30 min，如果有一个用户，在多台设备触发了首充订单，相当于这个用户名下就有多个首充的订单了，然后，卡在支付流程到期间，一起支付，从而进行多次首充；</p>
+<p>那么我们该如何规避这种场景呢？</p>
+<p>很简单，我们只需要在完成一笔首充订单之后，关闭掉其他未支付的首充订单即可。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>后台系统的安全性设计是保障系统整体安全性和数据保密性的核心环节。本文从多个维度探讨了后台开发中常见的安全问题及应对策略，以下是文章的要点总结：</p>
+<h2 id="​数据传输安全设计"><a href="#​数据传输安全设计" class="headerlink" title="​数据传输安全设计"></a>​数据传输安全设计</h2><ol>
+<li>Protobuf 协议设计的注意事项：</li>
+</ol>
+<ul>
+<li>避免暴露主人态参数（如 user_id）在协议中，使用安全令牌或会话 ID 替代。  </li>
+<li>限制数据类型的范围（如使用 uint32 而非 int32）以防止恶意篡改。  </li>
+<li>禁止在协议中携带可绕过权限校验的字段。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>密码与 Cookie 的安全问题：</li>
+</ol>
+<ul>
+<li>避免将密码的 MD5 值通过 URL 传输，防止泄露敏感信息。  </li>
+<li>Cookie 必须通过 HTTP Header 传递，利用 HttpOnly、Secure 和 SameSite 属性增强安全性，避免通过响应体传递。<br>&nbsp;</li>
+</ul>
+<ol start="3">
+<li>​敏感信息的处理：</li>
+</ol>
+<ul>
+<li>敏感信息在浏览器中打码展示并不安全，后台需要对数据进行脱敏处理后再返回。<br>&nbsp;</li>
+</ul>
+<ol start="4">
+<li>​安全的账户初始化：</li>
+</ol>
+<ul>
+<li>避免通过短信发送初始账户名和密码，推荐使用二维码或邮箱发送临时密码，安全性更高。</li>
+</ul>
+<h2 id="​安全执行命令设计"><a href="#​安全执行命令设计" class="headerlink" title="​安全执行命令设计"></a>​安全执行命令设计</h2><ol>
+<li>​禁止拼接命令：</li>
+</ol>
+<ul>
+<li>使用 exec.Command 将命令和参数分开传递，避免命令注入风险。   </li>
+<li>限制程序运行权限，确保只赋予最低必要权限（如“只读”权限）。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>输入参数限制与转义：</li>
+</ol>
+<ul>
+<li>限制用户输入的参数范围，防止恶意命令。  </li>
+<li>转义输入中的特殊字符（如 ;、&amp;、|），进一步防止命令注入。</li>
+</ul>
+<h2 id="​鉴权安全设计"><a href="#​鉴权安全设计" class="headerlink" title="​鉴权安全设计"></a>​鉴权安全设计</h2><ol>
+<li>​Session 验证的最佳实践：</li>
+</ol>
+<ul>
+<li>用户身份验证应从服务端的 session 中获取，避免使用客户端存储的 session，防止越权漏洞。</li>
+</ul>
+<h2 id="​业务安全设计"><a href="#​业务安全设计" class="headerlink" title="​业务安全设计"></a>​业务安全设计</h2><ol>
+<li>礼包 ID 的设计：</li>
+</ol>
+<ul>
+<li>礼包 ID 不应递增，建议使用 UUID 或加密方式，防止用户通过遍历 ID 批量领取礼包。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>​首充业务的唯一性保障：</li>
+</ol>
+<ul>
+<li>在首充订单完成后，关闭其他未支付的首充订单，确保每个用户只能完成一次首充。<br>&nbsp;</li>
+</ul>
+<p>通过以上总结可以看出，​后台系统的安全性设计需要从多个层面进行防护，包括协议设计、数据传输、命令执行、鉴权和业务逻辑等。每个环节都需要仔细设计，确保系统的整体安全性和数据的保密性。</p>
+<p>在后台开发中，除了上述提到的安全问题，还需持续关注新出现的安全威胁，并定期进行安全审计和漏洞修复。安全是一个持续的过程，只有不断优化和完善，才能为用户提供更加安全可靠的服务。</p>
+]]></content>
+      <categories>
+        <category>Backend</category>
       </categories>
   </entry>
 </search>

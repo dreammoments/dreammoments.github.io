@@ -9,7 +9,7 @@
     
     <title>
         
-            后台系统安全性设计的思考 |
+            安全性设计的思考 |
         
         Kevin&#39;s Blog
     </title>
@@ -193,7 +193,7 @@
             <div class="post-content-bottom border-box">
                 
                     <div class="post-title">
-                        后台系统安全性设计的思考
+                        安全性设计的思考
                     </div>
                 
 
@@ -208,7 +208,7 @@
                             <div class="author border-box">
                                 <span class="name">Kevin</span>
                                 
-                                    <span class="author-badge">Lv1</span>
+                                    <span class="author-badge">Lv2</span>
                                 
                             </div>
                             <div class="meta-info border-box">
@@ -226,7 +226,7 @@
 
             <span class="meta-info-item post-update-date">
                 <i class="icon fa-solid fa-file-pen"></i>&nbsp;
-                <span class="datetime" data-updated="Mon Nov 18 2024 23:53:22 GMT+0800">2024-11-18 23:53:22</span>
+                <span class="datetime" data-updated="Sun Mar 23 2025 17:05:21 GMT+0800">2025-03-23 17:05:21</span>
             </span>
         
 
@@ -234,7 +234,7 @@
             <span class="meta-info-item post-category border-box"><i class="icon fas fa-folder"></i>&nbsp;
                 <ul class="post-category-ul">
                     
-                            <li class="category-item"><a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a></li>
+                            <li class="category-item"><a href="/categories/Backend/">Backend</a></li>
                         
                     
                 </ul>
@@ -336,6 +336,68 @@
 <h2 id="首充业务保证只有一次"><a href="#首充业务保证只有一次" class="headerlink" title="首充业务保证只有一次"></a>首充业务保证只有一次</h2><p>首次充值业务，我们知道一个订单的有效期大概是 30 min，如果有一个用户，在多台设备触发了首充订单，相当于这个用户名下就有多个首充的订单了，然后，卡在支付流程到期间，一起支付，从而进行多次首充；</p>
 <p>那么我们该如何规避这种场景呢？</p>
 <p>很简单，我们只需要在完成一笔首充订单之后，关闭掉其他未支付的首充订单即可。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>后台系统的安全性设计是保障系统整体安全性和数据保密性的核心环节。本文从多个维度探讨了后台开发中常见的安全问题及应对策略，以下是文章的要点总结：</p>
+<h2 id="​数据传输安全设计"><a href="#​数据传输安全设计" class="headerlink" title="​数据传输安全设计"></a>​数据传输安全设计</h2><ol>
+<li>Protobuf 协议设计的注意事项：</li>
+</ol>
+<ul>
+<li>避免暴露主人态参数（如 user_id）在协议中，使用安全令牌或会话 ID 替代。  </li>
+<li>限制数据类型的范围（如使用 uint32 而非 int32）以防止恶意篡改。  </li>
+<li>禁止在协议中携带可绕过权限校验的字段。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>密码与 Cookie 的安全问题：</li>
+</ol>
+<ul>
+<li>避免将密码的 MD5 值通过 URL 传输，防止泄露敏感信息。  </li>
+<li>Cookie 必须通过 HTTP Header 传递，利用 HttpOnly、Secure 和 SameSite 属性增强安全性，避免通过响应体传递。<br>&nbsp;</li>
+</ul>
+<ol start="3">
+<li>​敏感信息的处理：</li>
+</ol>
+<ul>
+<li>敏感信息在浏览器中打码展示并不安全，后台需要对数据进行脱敏处理后再返回。<br>&nbsp;</li>
+</ul>
+<ol start="4">
+<li>​安全的账户初始化：</li>
+</ol>
+<ul>
+<li>避免通过短信发送初始账户名和密码，推荐使用二维码或邮箱发送临时密码，安全性更高。</li>
+</ul>
+<h2 id="​安全执行命令设计"><a href="#​安全执行命令设计" class="headerlink" title="​安全执行命令设计"></a>​安全执行命令设计</h2><ol>
+<li>​禁止拼接命令：</li>
+</ol>
+<ul>
+<li>使用 exec.Command 将命令和参数分开传递，避免命令注入风险。   </li>
+<li>限制程序运行权限，确保只赋予最低必要权限（如“只读”权限）。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>输入参数限制与转义：</li>
+</ol>
+<ul>
+<li>限制用户输入的参数范围，防止恶意命令。  </li>
+<li>转义输入中的特殊字符（如 ;、&amp;、|），进一步防止命令注入。</li>
+</ul>
+<h2 id="​鉴权安全设计"><a href="#​鉴权安全设计" class="headerlink" title="​鉴权安全设计"></a>​鉴权安全设计</h2><ol>
+<li>​Session 验证的最佳实践：</li>
+</ol>
+<ul>
+<li>用户身份验证应从服务端的 session 中获取，避免使用客户端存储的 session，防止越权漏洞。</li>
+</ul>
+<h2 id="​业务安全设计"><a href="#​业务安全设计" class="headerlink" title="​业务安全设计"></a>​业务安全设计</h2><ol>
+<li>礼包 ID 的设计：</li>
+</ol>
+<ul>
+<li>礼包 ID 不应递增，建议使用 UUID 或加密方式，防止用户通过遍历 ID 批量领取礼包。<br>&nbsp;</li>
+</ul>
+<ol start="2">
+<li>​首充业务的唯一性保障：</li>
+</ol>
+<ul>
+<li>在首充订单完成后，关闭其他未支付的首充订单，确保每个用户只能完成一次首充。<br>&nbsp;</li>
+</ul>
+<p>通过以上总结可以看出，​后台系统的安全性设计需要从多个层面进行防护，包括协议设计、数据传输、命令执行、鉴权和业务逻辑等。每个环节都需要仔细设计，确保系统的整体安全性和数据的保密性。</p>
+<p>在后台开发中，除了上述提到的安全问题，还需持续关注新出现的安全威胁，并定期进行安全审计和漏洞修复。安全是一个持续的过程，只有不断优化和完善，才能为用户提供更加安全可靠的服务。</p>
 
                     
                 </div>
@@ -346,11 +408,11 @@
     <div class="copyright-info-content border-box">
         <div class="copyright-info-top border-box">
             <div class="copyright-post-title border-box text-ellipsis">
-                后台系统安全性设计的思考
+                安全性设计的思考
             </div>
 
             <div class="copyright-post-link border-box text-ellipsis">
-                2024/08/17/design-后台系统安全性设计思考/
+                2024/08/17/backend-安全性设计思考/
             </div>
         </div>
 
@@ -498,7 +560,7 @@
             <div class="pc-post-toc right-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.1.</span> <span class="nav-text">​数据传输安全设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.2.</span> <span class="nav-text">​安全执行命令设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.3.</span> <span class="nav-text">​鉴权安全设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.4.</span> <span class="nav-text">​业务安全设计</span></a></li></ol></li></ol>
     </div>
 </div>
 
@@ -606,7 +668,7 @@
             <div class="tablet-post-toc">
                 <div class="post-toc-wrap border-box">
     <div class="post-toc border-box">
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">数据传输安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Protobuf 协议设计注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E4%B8%BB%E4%BA%BA%E6%80%81%E5%8F%82%E6%95%B0%E6%9A%B4%E9%9C%B2%E5%9C%A8%E5%8D%8F%E8%AE%AE%E4%B8%AD"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免主人态参数暴露在协议中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8%E6%9C%89%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">谨慎使用有符号的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%90%BA%E5%B8%A6%E7%BB%95%E8%BF%87%E6%9D%83%E9%99%90%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">1.1.3.</span> <span class="nav-text">禁止携带绕过权限的字段</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C-MD5-%E5%8A%A0%E5%AF%86%E5%B0%B1%E7%A8%B3%E4%BA%86%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">数据进行 MD5 加密就稳了吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%9C%A8%E5%93%8D%E5%BA%94%E4%BD%93%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">cookie 可以放在响应体吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%93%8D%E5%BA%94%E4%BD%93%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用响应体传递 cookie 数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Header-%E4%BC%A0%E9%80%92-cookie-%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用 Header 传递 cookie 数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%9A%84%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%95%B4%E8%BF%94%E5%9B%9E%E7%94%B1%E6%B5%8F%E8%A7%88%E5%99%A8%E6%89%93%E7%A0%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">用户的敏感信息完整返回由浏览器打码安全吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E8%B4%A6%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E4%BB%A5%E7%9F%AD%E4%BF%A1%E5%BD%A2%E5%BC%8F%E5%8F%91%E9%80%81%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="nav-number">1.5.</span> <span class="nav-text">初始账户名和密码以短信形式发送安全吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">安全执行命令设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E6%8B%BC%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">禁止拼接命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">输入参数限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E8%BD%AC%E4%B9%89"><span class="nav-number">2.3.</span> <span class="nav-text">输入参数转义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">鉴权安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81-session"><span class="nav-number">3.1.</span> <span class="nav-text">验证 session</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">业务安全设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BC%E5%8C%85-Id-%E9%80%92%E5%A2%9E%E5%90%88%E9%80%82%E5%90%97%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">礼包 Id 递增合适吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E5%85%85%E4%B8%9A%E5%8A%A1%E4%BF%9D%E8%AF%81%E5%8F%AA%E6%9C%89%E4%B8%80%E6%AC%A1"><span class="nav-number">4.2.</span> <span class="nav-text">首充业务保证只有一次</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.1.</span> <span class="nav-text">​数据传输安全设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.2.</span> <span class="nav-text">​安全执行命令设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E9%89%B4%E6%9D%83%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.3.</span> <span class="nav-text">​鉴权安全设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%8B%E4%B8%9A%E5%8A%A1%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.4.</span> <span class="nav-text">​业务安全设计</span></a></li></ol></li></ol>
     </div>
 </div>
 
